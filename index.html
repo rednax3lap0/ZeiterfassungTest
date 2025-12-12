@@ -366,6 +366,100 @@
         padding: 6px 6px;
       }
     }
+
+    /* Modal für Objekt-Zuweisung */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 16px;
+    }
+
+    .modal {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 16px 12px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .modal-search {
+      margin-bottom: 4px;
+    }
+
+    .modal-list {
+      margin-top: 4px;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .modal-list-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .modal-list-item:hover {
+      background: #e5e7eb;
+    }
+
+    .modal-list-empty {
+      font-size: 13px;
+      color: #9ca3af;
+      padding: 4px 6px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .modal {
+        max-width: none;
+        width: 100%;
+        height: auto;
+        max-height: 80vh;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -560,6 +654,9 @@
     let objects = [];
     let entries = [];
     let currentUser = null;
+
+    let objectModalUserId = null;
+
 
     function loadFromStorage(key, fallback) {
       try {
@@ -782,7 +879,8 @@
         });
       });
 
-      tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
+      
+tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const id = Number(btn.getAttribute("data-edit-objects"));
           const u = users.find((u) => u.id === id);
@@ -795,37 +893,91 @@
             alert("Es gibt noch keine Objekte.");
             return;
           }
-
-          const availableList = objects.map((o) => `${o.id}: ${o.name}`).join("\n");
-          const currentIds = Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
-          const currentString = currentIds.join(",");
-
-          const input = prompt(
-            "Gib die IDs der erlaubten Objekte ein (Komma getrennt).\n" +
-            "Leerlassen = keine Objekte.\n\nVerfügbare Objekte:\n" +
-            availableList,
-            currentString
-          );
-          if (input === null) {
-            return;
-          }
-          const trimmed = input.trim();
-          let newIds = [];
-          if (trimmed !== "") {
-            newIds = trimmed
-              .split(",")
-              .map((s) => Number(s.trim()))
-              .filter((id2) => objects.some((o) => o.id === id2));
-          }
-          u.allowedObjectIds = newIds;
-          saveToStorage(STORAGE_KEY_USERS, users);
-          renderUsersTable();
-          if (currentUser && currentUser.id === u.id) {
-            renderObjectsSelect();
-          }
-          renderEntries();
+          openObjectModal(id);
         });
       });
+    }
+
+    function openObjectModal(userId) {
+      const modalBackdrop = document.getElementById("object-modal-backdrop");
+      const modalUsername = document.getElementById("object-modal-username");
+      const modalSearch = document.getElementById("object-modal-search");
+
+      const user = users.find((u) => u.id === userId);
+      if (!user) return;
+      if (!objects || objects.length === 0) {
+        alert("Es gibt noch keine Objekte.");
+        return;
+      }
+
+      objectModalUserId = userId;
+      if (modalUsername) modalUsername.textContent = user.username;
+      if (modalSearch) modalSearch.value = "";
+
+      renderObjectModalList();
+
+      if (modalBackdrop) {
+        modalBackdrop.style.display = "flex";
+      }
+    }
+
+    function closeObjectModal() {
+      const modalBackdrop = document.getElementById("object-modal-backdrop");
+      objectModalUserId = null;
+      if (modalBackdrop) {
+        modalBackdrop.style.display = "none";
+      }
+    }
+
+    function renderObjectModalList() {
+      const listEl = document.getElementById("object-modal-list");
+      const searchInput = document.getElementById("object-modal-search");
+      if (!listEl) return;
+
+      listEl.innerHTML = "";
+
+      if (!objects || objects.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "modal-list-empty";
+        empty.textContent = "Keine Objekte vorhanden.";
+        listEl.appendChild(empty);
+        return;
+      }
+
+      const user = users.find((u) => u.id === objectModalUserId);
+      if (!user) return;
+
+      const allowedIds = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
+      const term = (searchInput && searchInput.value ? searchInput.value : "").toLowerCase().trim();
+
+      const filteredObjects = objects.filter((o) =>
+        !term || String(o.name || "").toLowerCase().includes(term)
+      );
+
+      if (filteredObjects.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "modal-list-empty";
+        empty.textContent = "Keine Treffer.";
+        listEl.appendChild(empty);
+        return;
+      }
+
+      for (const obj of filteredObjects) {
+        const item = document.createElement("label");
+        item.className = "modal-list-item";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = String(obj.id);
+        checkbox.checked = allowedIds.includes(obj.id);
+
+        const span = document.createElement("span");
+        span.textContent = obj.name;
+
+        item.appendChild(checkbox);
+        item.appendChild(span);
+        listEl.appendChild(item);
+      }
     }
 
     function renderEntries() {
@@ -1122,11 +1274,111 @@
         renderUsersTable();
       });
 
+
+      // Modal-Events für Objekt-Zuweisung
+      const modalBackdrop = document.getElementById("object-modal-backdrop");
+      const modalSearch = document.getElementById("object-modal-search");
+      const modalCloseBtn = document.getElementById("object-modal-close");
+      const modalCancelBtn = document.getElementById("object-modal-cancel");
+      const modalSaveBtn = document.getElementById("object-modal-save");
+
+      if (modalSearch) {
+        modalSearch.addEventListener("input", () => {
+          renderObjectModalList();
+        });
+      }
+
+      if (modalCloseBtn) {
+        modalCloseBtn.addEventListener("click", () => {
+          closeObjectModal();
+        });
+      }
+
+      if (modalCancelBtn) {
+        modalCancelBtn.addEventListener("click", () => {
+          closeObjectModal();
+        });
+      }
+
+      if (modalBackdrop) {
+        modalBackdrop.addEventListener("click", (e) => {
+          if (e.target === modalBackdrop) {
+            closeObjectModal();
+          }
+        });
+      }
+
+      if (modalSaveBtn) {
+        modalSaveBtn.addEventListener("click", () => {
+          const user = users.find((u) => u.id === objectModalUserId);
+          if (!user) {
+            closeObjectModal();
+            return;
+          }
+          const listEl = document.getElementById("object-modal-list");
+          if (!listEl) {
+            closeObjectModal();
+            return;
+          }
+
+          const checkboxes = listEl.querySelectorAll("input[type=\"checkbox\"]");
+          const newIds = [];
+          checkboxes.forEach((cb) => {
+            if (cb.checked) {
+              const val = Number(cb.value);
+              if (!Number.isNaN(val)) {
+                newIds.push(val);
+              }
+            }
+          });
+
+          user.allowedObjectIds = newIds;
+          saveToStorage(STORAGE_KEY_USERS, users);
+          renderUsersTable();
+          if (currentUser && currentUser.id === user.id) {
+            renderObjectsSelect();
+          }
+          closeObjectModal();
+        });
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeObjectModal();
+        }
+      });
+
       renderObjectsSelect();
       renderObjectsTable();
       renderUsersTable();
       renderEntries();
     });
   </script>
+
+  <!-- Modal: Objekte zuweisen -->
+  <div id="object-modal-backdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="object-modal-title">
+      <div class="modal-header">
+        <div class="modal-title" id="object-modal-title">
+          Objekte zuweisen – <span id="object-modal-username"></span>
+        </div>
+        <button type="button" id="object-modal-close" class="btn-secondary small-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-search">
+          <label for="object-modal-search">Objekte suchen</label>
+          <input type="text" id="object-modal-search" placeholder="Name oder Teil davon eingeben…" />
+        </div>
+        <div id="object-modal-list" class="modal-list">
+          <!-- Checkbox-Liste wird per JS gefüllt -->
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="object-modal-cancel" class="btn-secondary">Abbrechen</button>
+        <button type="button" id="object-modal-save" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
