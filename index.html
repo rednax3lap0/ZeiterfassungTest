@@ -2,15 +2,11 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <title>Interne Zeiterfassung – Responsive Prototyp</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interne Zeiterfassung – Mobile-optimierter Prototyp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <style>
     * {
       box-sizing: border-box;
-    }
-
-    :root {
-      color-scheme: light dark;
     }
 
     body {
@@ -215,8 +211,7 @@
 
     .table-wrapper {
       width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow-x: hidden; /* kein horizontales Scrolling mehr */
       border-radius: 12px;
       border: 1px solid #e5e7eb;
       background: #ffffff;
@@ -226,7 +221,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 14px;
-      min-width: 720px;
+      table-layout: fixed; /* Spalten ziehen sich zusammen */
     }
 
     thead {
@@ -239,6 +234,8 @@
       text-align: left;
       border-bottom: 1px solid #e5e7eb;
       vertical-align: top;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     th {
@@ -360,18 +357,13 @@
         justify-content: center;
       }
 
-      .table-wrapper {
-        border-radius: 10px;
-      }
-
       table {
-        min-width: 640px;
-        font-size: 13px;
+        font-size: 12px;
       }
 
       th,
       td {
-        padding: 6px 8px;
+        padding: 6px 6px;
       }
     }
   </style>
@@ -443,8 +435,7 @@
               </div>
               <div>
                 <label for="object">Objekt</label>
-                <select id="object">
-                </select>
+                <select id="object"></select>
               </div>
               <div>
                 <label for="description">Beschreibung / Aufgabe</label>
@@ -480,11 +471,10 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody id="entries-body">
-                </tbody>
+                <tbody id="entries-body"></tbody>
               </table>
-              <div class="empty-state" id="empty-state">Noch keine Einträge.</div>
             </div>
+            <div class="empty-state" id="empty-state">Noch keine Einträge.</div>
           </section>
         </div>
 
