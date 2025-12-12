@@ -2,12 +2,10 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <title>Interne Zeiterfassung – Mobile-optimierter Prototyp</title>
+  <title>Interne Zeiterfassung – Supabase-Version</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -25,24 +23,24 @@
     .card {
       background: #ffffff;
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
       padding: 24px;
     }
 
     h1 {
-      margin-top: 0;
-      margin-bottom: 8px;
+      margin: 0 0 8px;
       font-size: 24px;
       font-weight: 700;
     }
 
     h2 {
-      font-size: 18px;
       margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 600;
     }
 
     .subtitle {
-      margin: 0 0 20px;
+      margin: 0 0 16px;
       color: #6b7280;
       font-size: 14px;
     }
@@ -59,29 +57,22 @@
     input[type="password"],
     input[type="date"],
     input[type="time"],
-    select,
-    textarea {
+    select {
       width: 100%;
-      padding: 10px 12px;
+      padding: 9px 11px;
       border-radius: 10px;
       border: 1px solid #d1d5db;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-      background-color: #f9fafb;
+      background: #f9fafb;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
 
     input:focus,
-    select:focus,
-    textarea:focus {
+    select:focus {
       border-color: #2563eb;
-      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
-      background-color: #ffffff;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 38px;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.25);
+      background: #ffffff;
     }
 
     button {
@@ -91,47 +82,31 @@
     }
 
     .btn-primary {
-      padding: 10px 16px;
+      padding: 9px 16px;
       border-radius: 999px;
       background: #2563eb;
       color: #ffffff;
       font-size: 14px;
       font-weight: 600;
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
-      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 4px 10px rgba(37,99,235,0.35);
       white-space: nowrap;
+      transition: background .15s ease, transform .1s ease, box-shadow .15s ease;
     }
 
     .btn-primary:hover {
       background: #1d4ed8;
       transform: translateY(-1px);
-      box-shadow: 0 6px 15px rgba(37, 99, 235, 0.45);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0);
-      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 6px 15px rgba(37,99,235,0.45);
     }
 
     .btn-secondary {
-      padding: 8px 13px;
+      padding: 7px 12px;
       border-radius: 999px;
       background: #e5e7eb;
       color: #111827;
       font-size: 13px;
       font-weight: 500;
-      transition: background 0.15s ease;
       white-space: nowrap;
-    }
-
-    .btn-secondary:hover {
-      background: #d1d5db;
-    }
-
-    .small-btn {
-      padding: 3px 8px;
-      font-size: 11px;
-      box-shadow: none;
     }
 
     .btn-danger {
@@ -143,12 +118,10 @@
       font-weight: 600;
     }
 
-    .btn-danger:hover {
-      background: #fecaca;
-    }
+    .small-btn { padding: 3px 7px; font-size: 11px; }
 
     .login-form {
-      max-width: 400px;
+      max-width: 380px;
       margin-top: 16px;
       display: grid;
       gap: 12px;
@@ -164,19 +137,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
       gap: 12px;
       flex-wrap: wrap;
+      margin-bottom: 16px;
     }
 
     .user-badge {
       font-size: 13px;
       color: #4b5563;
-    }
-
-    .user-badge strong {
-      font-weight: 600;
-      color: #111827;
     }
 
     .pill {
@@ -188,92 +156,7 @@
       color: #0369a1;
       font-size: 12px;
       font-weight: 600;
-      margin-left: 8px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 2fr 1.3fr;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .section {
-      margin-top: 24px;
-    }
-
-    form.row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      align-items: end;
-    }
-
-    .table-wrapper {
-      width: 100%;
-      overflow-x: hidden; /* kein horizontales Scrolling mehr */
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-      background: #ffffff;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      table-layout: fixed; /* Spalten ziehen sich zusammen */
-    }
-
-    thead {
-      background: #f3f4f6;
-    }
-
-    th,
-    td {
-      padding: 8px 10px;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-      vertical-align: top;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    th {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #6b7280;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #f9fafb;
-    }
-
-    tbody tr:hover {
-      background: #eef2ff;
-    }
-
-    .description-cell {
-      max-width: 260px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .entries-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0 12px;
-      font-size: 14px;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .empty-state {
-      padding: 10px 0;
-      text-align: center;
-      color: #9ca3af;
-      font-size: 14px;
+      margin-left: 6px;
     }
 
     .badge {
@@ -283,30 +166,34 @@
       font-size: 11px;
       font-weight: 600;
     }
+    .badge-admin { background: #fef3c7; color: #92400e; }
+    .badge-user { background: #e5e7eb; color: #374151; }
+    .badge-lead { background: #dbeafe; color: #1d4ed8; }
 
-    .badge-admin {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .badge-user {
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    .small {
-      font-size: 12px;
-    }
-
-    .stack {
+    .layout {
       display: grid;
-      gap: 8px;
+      grid-template-columns: 2fr 1.3fr;
+      gap: 16px;
+      align-items: flex-start;
     }
 
+    .section { margin-top: 22px; }
 
-    .badge-lead {
-      background: #dbeafe;
-      color: #1d4ed8;
+    form.row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .entries-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      margin: 8px 0 8px;
+      font-size: 14px;
+      flex-wrap: wrap;
     }
 
     .filters-row {
@@ -315,87 +202,71 @@
       gap: 8px;
       margin: 0 0 8px;
     }
-
     .filters-row > div {
       flex: 1 1 0;
       min-width: 140px;
     }
-    /* Tablet */
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
 
-      .card {
-        padding: 20px;
-      }
+    .table-wrapper {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      overflow-x: auto;
     }
 
-    /* Handy */
-    @media (max-width: 640px) {
-      .page {
-        margin: 0;
-        padding: 0;
-      }
-
-      .card {
-        border-radius: 0;
-        box-shadow: none;
-        min-height: 100vh;
-        padding: 16px 12px 24px;
-      }
-
-      h1 {
-        font-size: 20px;
-      }
-
-      h2 {
-        font-size: 16px;
-      }
-
-      .subtitle {
-        font-size: 13px;
-      }
-
-      .app-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
-
-      form.row {
-        grid-template-columns: 1fr;
-      }
-
-      .btn-primary,
-      .btn-secondary {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
-      }
-
-      table {
-        font-size: 12px;
-      }
-
-      th,
-      td {
-        padding: 6px 6px;
-      }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 640px;
     }
 
-    /* Modal für Objekt-Zuweisung */
+    thead { background: #f3f4f6; }
+
+    th, td {
+      padding: 7px 9px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #6b7280;
+    }
+
+    tbody tr:nth-child(even) { background: #f9fafb; }
+    tbody tr:hover { background: #eef2ff; }
+
+    .description-cell {
+      max-width: 260px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .empty-state {
+      padding: 10px 0;
+      text-align: center;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .stack { display: grid; gap: 8px; }
+
+    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
       display: none;
       align-items: center;
       justify-content: center;
+      background: rgba(15,23,42,.55);
       z-index: 50;
       padding: 16px;
     }
-
     .modal {
       background: #ffffff;
       border-radius: 16px;
@@ -404,34 +275,26 @@
       max-height: 80vh;
       display: flex;
       flex-direction: column;
-      padding: 16px 16px 12px;
-      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+      padding: 14px 16px 12px;
+      box-shadow: 0 20px 45px rgba(15,23,42,.35);
     }
-
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
-
     .modal-title {
       font-size: 16px;
       font-weight: 600;
     }
-
     .modal-body {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       overflow: hidden;
     }
-
-    .modal-search {
-      margin-bottom: 4px;
-    }
-
     .modal-list {
       margin-top: 4px;
       padding: 4px;
@@ -441,7 +304,6 @@
       max-height: 260px;
       overflow-y: auto;
     }
-
     .modal-list-item {
       display: flex;
       align-items: center;
@@ -450,17 +312,12 @@
       border-radius: 8px;
       font-size: 13px;
     }
-
-    .modal-list-item:hover {
-      background: #e5e7eb;
-    }
-
+    .modal-list-item:hover { background: #e5e7eb; }
     .modal-list-empty {
       font-size: 13px;
       color: #9ca3af;
       padding: 4px 6px;
     }
-
     .modal-actions {
       display: flex;
       justify-content: flex-end;
@@ -468,39 +325,56 @@
       margin-top: 10px;
     }
 
-    @media (max-width: 640px) {
-      .modal {
-        max-width: none;
-        width: 100%;
-        height: auto;
-        max-height: 80vh;
-      }
+    /* Tablet */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .card { padding: 20px; }
     }
 
+    /* Handy */
+    @media (max-width: 640px) {
+      .page { margin: 0; padding: 0; }
+      .card {
+        border-radius: 0;
+        box-shadow: none;
+        padding: 16px 12px 24px;
+        min-height: 100vh;
+      }
+      h1 { font-size: 20px; }
+      h2 { font-size: 16px; }
+      .layout { grid-template-columns: 1fr; }
+      form.row { grid-template-columns: 1fr; }
+      .btn-primary, .btn-secondary {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+      table { min-width: 600px; font-size: 12px; }
+      th, td { padding: 6px 6px; }
+    }
   </style>
 </head>
 <body>
   <div class="page">
-    <!-- Login-Ansicht -->
+    <!-- Login -->
     <div id="login-view" class="card">
       <h1>Interne Zeiterfassung – Login</h1>
       <p class="subtitle">
-        Prototyp mit einfacher Benutzer- und Objekt-Rechte-Verwaltung. Nur Test, alles liegt im Browser (localStorage).
+        Supabase-Version mit zentraler Datenbank. Admin, Objektleitung und Mitarbeiter werden serverseitig gespeichert.
       </p>
-
       <div class="hint">
-        Beim ersten Start wird automatisch ein Admin-Benutzer angelegt:<br />
+        Beim ersten Start wird automatisch ein Admin angelegt:<br>
         Benutzername: <code>admin</code> – Passwort: <code>admin123</code>
       </div>
 
       <form id="login-form" class="login-form">
         <div>
           <label for="login-username">Benutzername</label>
-          <input type="text" id="login-username" autocomplete="username" required />
+          <input id="login-username" type="text" autocomplete="username" required>
         </div>
         <div>
           <label for="login-password">Passwort</label>
-          <input type="password" id="login-password" autocomplete="current-password" required />
+          <input id="login-password" type="password" autocomplete="current-password" required>
         </div>
         <div>
           <button type="submit" class="btn-primary">Einloggen</button>
@@ -508,13 +382,13 @@
       </form>
     </div>
 
-    <!-- App-Ansicht -->
+    <!-- App -->
     <div id="app-view" class="card" style="display:none">
       <div class="app-header">
         <div>
           <h1>Interne Zeiterfassung</h1>
           <p class="subtitle">
-            Lokaler Prototyp mit Benutzerverwaltung, Objekten und Objekt-Rechten. Alle Daten liegen nur im Browser.
+            Zentrale Zeiterfassung mit Supabase. Rollen: Admin, Objektleitung, Mitarbeiter.
           </p>
         </div>
         <div class="stack" style="align-items:flex-end;">
@@ -527,30 +401,30 @@
       </div>
 
       <div class="layout">
-        <!-- Linke Seite: Zeiterfassung -->
+        <!-- Links: Buchungen -->
         <div>
           <section class="section">
             <h2>Neue Buchung</h2>
             <form id="entry-form" class="row">
               <div>
                 <label for="date">Datum</label>
-                <input type="date" id="date" required />
+                <input id="date" type="date" required>
               </div>
               <div>
                 <label for="start">Start</label>
-                <input type="time" id="start" required />
+                <input id="start" type="time" required>
               </div>
               <div>
                 <label for="end">Ende</label>
-                <input type="time" id="end" required />
+                <input id="end" type="time" required>
               </div>
               <div>
                 <label for="object">Objekt</label>
                 <select id="object"></select>
               </div>
               <div>
-                <label for="description">Beschreibung / Aufgabe</label>
-                <input type="text" id="description" placeholder="Aufgabe, Ticket, Notiz …" />
+                <label for="description">Beschreibung</label>
+                <input id="description" type="text" placeholder="Aufgabe / Notiz">
               </div>
               <div>
                 <button type="submit" class="btn-primary">Buchung hinzufügen</button>
@@ -562,13 +436,13 @@
             <div class="entries-header">
               <div>
                 <strong id="entries-title">Erfasste Zeiten</strong>
-                <span id="entries-subtitle" class="small"></span>
+                <span id="entries-subtitle" style="font-size:12px;"></span>
               </div>
               <div>
                 Summe: <strong id="total-hours">0h 00m</strong>
               </div>
-            
             </div>
+
             <div class="filters-row">
               <div>
                 <label for="filter-object">Objekt</label>
@@ -583,6 +457,7 @@
                 </select>
               </div>
             </div>
+
             <div class="table-wrapper">
               <table>
                 <thead>
@@ -600,18 +475,18 @@
                 <tbody id="entries-body"></tbody>
               </table>
             </div>
-            <div class="empty-state" id="empty-state">Noch keine Einträge.</div>
+            <div id="empty-state" class="empty-state">Noch keine Einträge.</div>
           </section>
         </div>
 
-        <!-- Rechte Seite: Admin-Kram -->
+        <!-- Rechts: Objekte / Benutzer -->
         <div>
           <section class="section admin-only" id="objects-section">
             <h2>Objekte</h2>
-            <form id="object-form" class="row" style="margin-bottom:12px;">
+            <form id="object-form" class="row" style="margin-bottom:10px;">
               <div>
                 <label for="object-name">Neues Objekt</label>
-                <input type="text" id="object-name" placeholder="z.B. Baustelle A, Büro XY …" />
+                <input id="object-name" type="text" placeholder="z.B. Baustelle A">
               </div>
               <div>
                 <button type="submit" class="btn-secondary">Objekt hinzufügen</button>
@@ -628,22 +503,23 @@
                 <tbody id="objects-body"></tbody>
               </table>
             </div>
-            <div class="empty-state" id="objects-empty">Noch keine Objekte.</div>
+            <div id="objects-empty" class="empty-state">Noch keine Objekte.</div>
           </section>
 
           <section class="section admin-only" id="users-section">
             <h2>Benutzer</h2>
             <div class="hint">
               Admin kann pro Benutzer definieren, auf welchen Objekten er buchen darf.
+              Objektleitung sieht alle Buchungen ihrer Objekte.
             </div>
-            <form id="user-form" class="row" style="margin-bottom:12px;">
+            <form id="user-form" class="row" style="margin-bottom:10px;">
               <div>
                 <label for="user-username">Benutzername</label>
-                <input type="text" id="user-username" placeholder="z.B. max, anna.b" />
+                <input id="user-username" type="text" placeholder="z.B. max">
               </div>
               <div>
                 <label for="user-password">Passwort</label>
-                <input type="password" id="user-password" />
+                <input id="user-password" type="password">
               </div>
               <div>
                 <label for="user-role">Rolle</label>
@@ -670,36 +546,54 @@
                 <tbody id="users-body"></tbody>
               </table>
             </div>
-            <div class="empty-state" id="users-empty">Noch keine Benutzer.</div>
+            <div id="users-empty" class="empty-state">Noch keine Benutzer.</div>
           </section>
         </div>
       </div>
     </div>
   </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Modal Objekte zuweisen -->
+  <div id="object-modal-backdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">
+          Objekte zuweisen – <span id="object-modal-username"></span>
+        </div>
+        <button id="object-modal-close" type="button" class="btn-secondary small-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <label for="object-modal-search">Objekte suchen</label>
+          <input id="object-modal-search" type="text" placeholder="Name / Teil vom Namen">
+        </div>
+        <div id="object-modal-list" class="modal-list"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="object-modal-cancel" type="button" class="btn-secondary">Abbrechen</button>
+        <button id="object-modal-save" type="button" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const SUPABASE_URL = "https://mgxrmoqpbbnahtijyjci.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_fS_r7bbCuYcOJKn3DNF0Nw_KqVEVftw";
+    // HIER DEINE SUPABASE-DATEN EINTRAGEN
+    const SUPABASE_URL = "https://DEIN-PROJEKT.supabase.co";
+    const SUPABASE_ANON_KEY = "DEIN_ANON_PUBLIC_KEY";
 
-    const { createClient } = supabase; // kommt von dem CDN-Script oben
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    const STORAGE_KEY_USERS = "timeApp_users_v2";
-    const STORAGE_KEY_OBJECTS = "timeApp_objects_v1";
-    const STORAGE_KEY_ENTRIES = "timeApp_entries_v1";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const STORAGE_KEY_CURRENT_USER = "timeApp_currentUser_v1";
 
     let users = [];
     let objects = [];
     let entries = [];
     let currentUser = null;
-
     let objectModalUserId = null;
     let entryFilterObjectId = "all";
     let entryFilterUserId = "all";
-
-
 
     function loadFromStorage(key, fallback) {
       try {
@@ -708,17 +602,14 @@
         const parsed = JSON.parse(raw);
         return parsed ?? fallback;
       } catch (e) {
-        console.error("Fehler beim Laden von", key, e);
         return fallback;
       }
     }
-
     function saveToStorage(key, value) {
       try {
         localStorage.setItem(key, JSON.stringify(value));
       } catch (e) {
-        console.error("Fehler beim Speichern von", key, e);
-        alert("Konnte nicht speichern (localStorage voll oder blockiert).");
+        console.error("localStorage Fehler:", e);
       }
     }
 
@@ -734,57 +625,107 @@
     function calcDurationMinutes(start, end) {
       const [sh, sm] = start.split(":").map(Number);
       const [eh, em] = end.split(":").map(Number);
-      const startMinutes = sh * 60 + sm;
-      const endMinutes = eh * 60 + em;
-      return endMinutes - startMinutes;
+      return (eh * 60 + em) - (sh * 60 + sm);
     }
-
-    function formatDuration(minutes) {
-      const m = Number(minutes) || 0;
+    function formatDuration(min) {
+      const m = Number(min) || 0;
       const h = Math.floor(m / 60);
-      const rem = m % 60;
-      return h + "h " + String(rem).padStart(2, "0") + "m";
+      const r = m % 60;
+      return h + "h " + String(r).padStart(2, "0") + "m";
     }
 
-    function initDefaultAdmin() {
-      if (!users || users.length === 0) {
-        const adminUser = {
-          id: Date.now(),
-          username: "admin",
-          password: "admin123",
-          role: "admin",
-          allowedObjectIds: []
-        };
-        users = [adminUser];
-        saveToStorage(STORAGE_KEY_USERS, users);
+    function mapUserRow(row) {
+      return {
+        ...row,
+        allowedObjectIds: Array.isArray(row.allowed_object_ids)
+          ? row.allowed_object_ids
+          : []
+      };
+    }
+
+    function mapEntryRow(row) {
+      return {
+        id: row.id,
+        userId: row.user_id,
+        objectId: row.object_id,
+        date: row.date,
+        start: row.start ? String(row.start).slice(0, 5) : "",
+        end: row.end ? String(row.end).slice(0, 5) : "",
+        durationMinutes: row.duration_minutes ?? 0,
+        description: row.description || ""
+      };
+    }
+
+    async function ensureDefaultAdmin() {
+      try {
+        const { data, error } = await supabaseClient
+          .from("users")
+          .select("id")
+          .eq("username", "admin")
+          .limit(1);
+        if (error) {
+          console.error("Admin-Prüfung Fehler:", error);
+          return;
+        }
+        if (!data || data.length === 0) {
+          const { error: insError } = await supabaseClient
+            .from("users")
+            .insert([{ username: "admin", password: "admin123", role: "admin", allowed_object_ids: [] }]);
+          if (insError) console.error("Admin-Anlage Fehler:", insError);
+        }
+      } catch (e) {
+        console.error("ensureDefaultAdmin Fehler:", e);
       }
     }
 
-    function findUserByCredentials(username, password) {
-      username = String(username || "").trim();
-      return users.find(
-        (u) => u.username === username && u.password === String(password)
-      );
+    async function loadAllData() {
+      try {
+        const { data: usersData, error: usersError } =
+          await supabaseClient.from("users").select("*");
+        if (usersError) {
+          console.error("Benutzer laden Fehler:", usersError);
+          alert("Fehler beim Laden der Benutzer.");
+          return false;
+        }
+        const { data: objectsData, error: objectsError } =
+          await supabaseClient.from("objects").select("*");
+        if (objectsError) {
+          console.error("Objekte laden Fehler:", objectsError);
+          alert("Fehler beim Laden der Objekte.");
+          return false;
+        }
+        const { data: entriesData, error: entriesError } =
+          await supabaseClient.from("entries").select("*");
+        if (entriesError) {
+          console.error("Buchungen laden Fehler:", entriesError);
+          alert("Fehler beim Laden der Buchungen.");
+          return false;
+        }
+
+        users = (usersData || []).map(mapUserRow);
+        objects = objectsData || [];
+        entries = (entriesData || []).map(mapEntryRow);
+        return true;
+      } catch (e) {
+        console.error("loadAllData Fehler:", e);
+        alert("Unbekannter Fehler beim Laden der Daten.");
+        return false;
+      }
     }
 
     function getAllowedObjectsForCurrentUser() {
       if (!currentUser) return [];
-      if (!objects) objects = [];
-      if (currentUser.role === "admin") {
-        return objects;
-      }
-      const u = users.find((u) => u.id === currentUser.id);
+      if (currentUser.role === "admin") return objects;
+      const u = users.find(u => u.id === currentUser.id);
       if (!u) return [];
-      const allowedIds = Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
-      if (allowedIds.length === 0) return [];
-      return objects.filter((o) => allowedIds.includes(o.id));
+      const ids = Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
+      return objects.filter(o => ids.includes(o.id));
     }
 
     function renderObjectsSelect() {
       const select = document.getElementById("object");
       if (!select) return;
       select.innerHTML = "";
-
       if (!currentUser) {
         const opt = document.createElement("option");
         opt.value = "";
@@ -793,27 +734,24 @@
         select.disabled = true;
         return;
       }
-
-      const allowedObjects = getAllowedObjectsForCurrentUser();
-
-      if (!allowedObjects || allowedObjects.length === 0) {
+      const allowed = getAllowedObjectsForCurrentUser();
+      if (!allowed.length) {
         const opt = document.createElement("option");
         opt.value = "";
         opt.textContent = currentUser.role === "admin"
-          ? "Keine Objekte definiert"
+          ? "Keine Objekte vorhanden"
           : "Keine Objekte zugewiesen";
         select.appendChild(opt);
         select.disabled = true;
         return;
       }
-
       select.disabled = false;
-      for (const obj of allowedObjects) {
+      allowed.forEach(o => {
         const opt = document.createElement("option");
-        opt.value = String(obj.id);
-        opt.textContent = obj.name;
+        opt.value = String(o.id);
+        opt.textContent = o.name;
         select.appendChild(opt);
-      }
+      });
     }
 
     function renderObjectsTable() {
@@ -821,8 +759,7 @@
       const empty = document.getElementById("objects-empty");
       if (!tbody) return;
       tbody.innerHTML = "";
-
-      if (!objects || objects.length === 0) {
+      if (!objects.length) {
         if (empty) empty.style.display = "block";
         return;
       }
@@ -837,17 +774,43 @@
         tbody.appendChild(tr);
       }
 
-      tbody.querySelectorAll("button[data-id]").forEach((btn) => {
-        btn.addEventListener("click", () => {
+      tbody.querySelectorAll("button[data-id]").forEach(btn => {
+        btn.addEventListener("click", async () => {
           const id = Number(btn.getAttribute("data-id"));
-          const index = objects.findIndex((o) => o.id === id);
-          if (index !== -1) {
+          const index = objects.findIndex(o => o.id === id);
+          if (index === -1) return;
+          const obj = objects[index];
+          const ok = confirm(`Objekt "${obj.name}" wirklich löschen? Alle zugehörigen Buchungen werden gelöscht.`);
+          if (!ok) return;
+
+          try {
+            const { error: entriesError } = await supabaseClient
+              .from("entries")
+              .delete()
+              .eq("object_id", id);
+            if (entriesError) {
+              console.error("Buchungen löschen Fehler:", entriesError);
+              alert("Buchungen für dieses Objekt konnten nicht gelöscht werden.");
+              return;
+            }
+            const { error: objError } = await supabaseClient
+              .from("objects")
+              .delete()
+              .eq("id", id);
+            if (objError) {
+              console.error("Objekt löschen Fehler:", objError);
+              alert("Objekt konnte nicht gelöscht werden.");
+              return;
+            }
             objects.splice(index, 1);
-            saveToStorage(STORAGE_KEY_OBJECTS, objects);
+            entries = entries.filter(e => e.objectId !== id);
             renderObjectsTable();
             renderObjectsSelect();
             renderUsersTable();
             renderEntries();
+          } catch (e) {
+            console.error("Objekt löschen Fehler:", e);
+            alert("Unbekannter Fehler beim Löschen des Objekts.");
           }
         });
       });
@@ -858,8 +821,7 @@
       const empty = document.getElementById("users-empty");
       if (!tbody) return;
       tbody.innerHTML = "";
-
-      if (!users || users.length === 0) {
+      if (!users.length) {
         if (empty) empty.style.display = "block";
         return;
       }
@@ -867,38 +829,28 @@
 
       for (const user of users) {
         const tr = document.createElement("tr");
-        let roleLabel;
-        let badgeClass;
+        let roleLabel, badgeClass;
         if (user.role === "admin") {
-          roleLabel = "Admin";
-          badgeClass = "badge-admin";
+          roleLabel = "Admin"; badgeClass = "badge-admin";
         } else if (user.role === "lead") {
-          roleLabel = "Objektleitung";
-          badgeClass = "badge-lead";
+          roleLabel = "Objektleitung"; badgeClass = "badge-lead";
         } else {
-          roleLabel = "Mitarbeiter";
-          badgeClass = "badge-user";
+          roleLabel = "Mitarbeiter"; badgeClass = "badge-user";
         }
 
-        const allowedIds = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
-        let objectsLabel;
+        const ids = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
+        let objectsLabel = "";
         if (user.role === "admin") {
           objectsLabel = "alle";
-        } else if (!objects || objects.length === 0) {
+        } else if (!objects.length) {
           objectsLabel = "-";
-        } else if (allowedIds.length === 0) {
+        } else if (!ids.length) {
           objectsLabel = "keine";
         } else {
-          const objectNames = objects
-            .filter((o) => allowedIds.includes(o.id))
-            .map((o) => o.name);
-          if (objectNames.length === 0) {
-            objectsLabel = "keine";
-          } else if (objectNames.length <= 2) {
-            objectsLabel = objectNames.join(", ");
-          } else {
-            objectsLabel = objectNames.slice(0, 2).join(", ") + ` (+${objectNames.length - 2})`;
-          }
+          const names = objects.filter(o => ids.includes(o.id)).map(o => o.name);
+          if (!names.length) objectsLabel = "keine";
+          else if (names.length <= 2) objectsLabel = names.join(", ");
+          else objectsLabel = names.slice(0,2).join(", ") + ` (+${names.length-2})`;
         }
 
         tr.innerHTML = `
@@ -906,134 +858,119 @@
           <td><span class="badge ${badgeClass}">${roleLabel}</span></td>
           <td>
             ${escapeHtml(objectsLabel || "")}
-            ${objects && objects.length && user.role !== "admin" ? ` <button type="button" class="btn-secondary small-btn" data-edit-objects="${user.id}">Objekte</button>` : ""}
+            ${objects.length && user.role !== "admin"
+              ? '<button type="button" class="btn-secondary small-btn" data-edit-objects="' + user.id + '">Objekte</button>'
+              : ""}
           </td>
-          <td>${user.username === "admin" ? "" : `<button type="button" class="btn-danger" data-id="${user.id}">Löschen</button>`}</td>
+          <td>${user.username === "admin" ? "" : '<button type="button" class="btn-danger" data-id="' + user.id + '">Löschen</button>'}</td>
         `;
         tbody.appendChild(tr);
       }
 
-      tbody.querySelectorAll("button.btn-danger[data-id]").forEach((btn) => {
-        btn.addEventListener("click", () => {
+      tbody.querySelectorAll("button.btn-danger[data-id]").forEach(btn => {
+        btn.addEventListener("click", async () => {
           const id = Number(btn.getAttribute("data-id"));
-          const u = users.find((u) => u.id === id);
+          const u = users.find(u => u.id === id);
           if (!u) return;
           if (currentUser && currentUser.id === id) {
             alert("Dich selbst löschen bringt wenig.");
             return;
           }
-          const index = users.findIndex((u) => u.id === id);
-          if (index !== -1) {
-            users.splice(index, 1);
-            saveToStorage(STORAGE_KEY_USERS, users);
+          const ok = confirm(`Benutzer "${u.username}" wirklich löschen? Alle Buchungen werden entfernt.`);
+          if (!ok) return;
+          try {
+            const { error } = await supabaseClient
+              .from("users")
+              .delete()
+              .eq("id", id);
+            if (error) {
+              console.error("Benutzer löschen Fehler:", error);
+              alert("Benutzer konnte nicht gelöscht werden.");
+              return;
+            }
+            users = users.filter(us => us.id !== id);
+            entries = entries.filter(e => e.userId !== id);
             renderUsersTable();
             renderEntries();
+          } catch (e) {
+            console.error("Benutzer löschen Fehler:", e);
+            alert("Unbekannter Fehler beim Löschen des Benutzers.");
           }
         });
       });
 
-      
-tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
+      tbody.querySelectorAll("button[data-edit-objects]").forEach(btn => {
         btn.addEventListener("click", () => {
           const id = Number(btn.getAttribute("data-edit-objects"));
-          const u = users.find((u) => u.id === id);
-          if (!u) return;
-          if (u.role === "admin") {
-            alert("Admin sieht immer alle Objekte.");
-            return;
-          }
-          if (!objects || objects.length === 0) {
-            alert("Es gibt noch keine Objekte.");
-            return;
-          }
           openObjectModal(id);
         });
       });
     }
 
     function openObjectModal(userId) {
-      const modalBackdrop = document.getElementById("object-modal-backdrop");
-      const modalUsername = document.getElementById("object-modal-username");
-      const modalSearch = document.getElementById("object-modal-search");
-
-      const user = users.find((u) => u.id === userId);
+      const user = users.find(u => u.id === userId);
       if (!user) return;
-      if (!objects || objects.length === 0) {
+      if (!objects.length) {
         alert("Es gibt noch keine Objekte.");
         return;
       }
-
       objectModalUserId = userId;
-      if (modalUsername) modalUsername.textContent = user.username;
-      if (modalSearch) modalSearch.value = "";
-
+      const backdrop = document.getElementById("object-modal-backdrop");
+      const nameEl = document.getElementById("object-modal-username");
+      const search = document.getElementById("object-modal-search");
+      if (nameEl) nameEl.textContent = user.username;
+      if (search) search.value = "";
       renderObjectModalList();
-
-      if (modalBackdrop) {
-        modalBackdrop.style.display = "flex";
-      }
+      if (backdrop) backdrop.style.display = "flex";
     }
 
     function closeObjectModal() {
-      const modalBackdrop = document.getElementById("object-modal-backdrop");
+      const backdrop = document.getElementById("object-modal-backdrop");
       objectModalUserId = null;
-      if (modalBackdrop) {
-        modalBackdrop.style.display = "none";
-      }
+      if (backdrop) backdrop.style.display = "none";
     }
 
     function renderObjectModalList() {
       const listEl = document.getElementById("object-modal-list");
       const searchInput = document.getElementById("object-modal-search");
       if (!listEl) return;
-
       listEl.innerHTML = "";
-
-      if (!objects || objects.length === 0) {
+      if (!objects.length) {
         const empty = document.createElement("div");
         empty.className = "modal-list-empty";
         empty.textContent = "Keine Objekte vorhanden.";
         listEl.appendChild(empty);
         return;
       }
-
-      const user = users.find((u) => u.id === objectModalUserId);
+      const user = users.find(u => u.id === objectModalUserId);
       if (!user) return;
-
-      const allowedIds = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
-      const term = (searchInput && searchInput.value ? searchInput.value : "").toLowerCase().trim();
-
-      const filteredObjects = objects.filter((o) =>
+      const allowed = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
+      const term = (searchInput && searchInput.value || "").toLowerCase().trim();
+      const filtered = objects.filter(o =>
         !term || String(o.name || "").toLowerCase().includes(term)
       );
-
-      if (filteredObjects.length === 0) {
+      if (!filtered.length) {
         const empty = document.createElement("div");
         empty.className = "modal-list-empty";
         empty.textContent = "Keine Treffer.";
         listEl.appendChild(empty);
         return;
       }
-
-      for (const obj of filteredObjects) {
-        const item = document.createElement("label");
-        item.className = "modal-list-item";
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.value = String(obj.id);
-        checkbox.checked = allowedIds.includes(obj.id);
-
+      for (const obj of filtered) {
+        const label = document.createElement("label");
+        label.className = "modal-list-item";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.value = String(obj.id);
+        cb.checked = allowed.includes(obj.id);
         const span = document.createElement("span");
         span.textContent = obj.name;
-
-        item.appendChild(checkbox);
-        item.appendChild(span);
-        listEl.appendChild(item);
+        label.appendChild(cb);
+        label.appendChild(span);
+        listEl.appendChild(label);
       }
     }
 
-    
     function renderEntries() {
       const tbody = document.getElementById("entries-body");
       const empty = document.getElementById("empty-state");
@@ -1046,68 +983,43 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       if (!tbody) return;
       tbody.innerHTML = "";
 
-      if (!entries) entries = [];
-
-      // aktuelle Filterwerte merken
-      if (filterObjectSelect) {
-        entryFilterObjectId = filterObjectSelect.value || "all";
-      }
-      if (filterUserSelect) {
-        entryFilterUserId = filterUserSelect.value || "all";
-      }
-
       let baseEntries = entries;
-      if (!currentUser) {
-        baseEntries = [];
-      } else if (currentUser.role === "admin") {
-        baseEntries = entries;
-      } else if (currentUser.role === "lead") {
-        const u = users.find((usr) => usr.id === currentUser.id);
-        const allowedIds = u && Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
-        baseEntries = entries.filter((e) => !e.objectId || allowedIds.includes(e.objectId));
+      if (!currentUser) baseEntries = [];
+      else if (currentUser.role === "admin") baseEntries = entries;
+      else if (currentUser.role === "lead") {
+        const u = users.find(us => us.id === currentUser.id);
+        const ids = u && Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
+        baseEntries = entries.filter(e => !e.objectId || ids.includes(e.objectId));
       } else {
-        baseEntries = entries.filter((e) => e.userId === currentUser.id);
+        baseEntries = entries.filter(e => e.userId === currentUser.id);
       }
 
       if (currentUser && (currentUser.role === "admin" || currentUser.role === "lead")) {
         if (thUser) thUser.style.display = "";
-        if (subtitleEl) {
+        if (subtitleEl)
           subtitleEl.textContent = currentUser.role === "admin"
             ? " – alle Benutzer"
             : " – eigene Objekte";
-        }
       } else {
         if (thUser) thUser.style.display = "none";
         if (subtitleEl) subtitleEl.textContent = "";
       }
 
-      if (!baseEntries || baseEntries.length === 0) {
+      if (!baseEntries.length) {
         if (empty) empty.style.display = "block";
         if (totalEl) totalEl.textContent = "0h 00m";
-        // Filter-Selects trotzdem aktualisieren (leere Auswahl)
-        if (filterObjectSelect) {
-          filterObjectSelect.innerHTML = '<option value="all">Alle</option>';
-        }
-        if (filterUserSelect) {
-          filterUserSelect.innerHTML = '<option value="all">Alle</option>';
-        }
+        if (filterObjectSelect) filterObjectSelect.innerHTML = '<option value="all">Alle</option>';
+        if (filterUserSelect) filterUserSelect.innerHTML = '<option value="all">Alle</option>';
         return;
       } else {
         if (empty) empty.style.display = "none";
       }
 
-      // Maps für Objekte/Benutzer
       const objectsById = {};
-      for (const obj of objects) {
-        objectsById[obj.id] = obj;
-      }
-
+      for (const o of objects) objectsById[o.id] = o;
       const usersById = {};
-      for (const u of users) {
-        usersById[u.id] = u;
-      }
+      for (const u of users) usersById[u.id] = u;
 
-      // Filter-Dropdowns aus Basis-Einträgen generieren
       const objectIdsInEntries = new Set();
       const userIdsInEntries = new Set();
       for (const e of baseEntries) {
@@ -1116,9 +1028,9 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       }
 
       if (filterObjectSelect) {
-        const previous = entryFilterObjectId;
+        const prev = entryFilterObjectId;
         filterObjectSelect.innerHTML = '<option value="all">Alle</option>';
-        objectIdsInEntries.forEach((id) => {
+        objectIdsInEntries.forEach(id => {
           const obj = objectsById[id];
           if (!obj) return;
           const opt = document.createElement("option");
@@ -1126,9 +1038,8 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
           opt.textContent = obj.name;
           filterObjectSelect.appendChild(opt);
         });
-        // Versuch, vorherige Auswahl wiederherzustellen
-        if (previous && [...filterObjectSelect.options].some(o => o.value === previous)) {
-          filterObjectSelect.value = previous;
+        if (prev && [...filterObjectSelect.options].some(o => o.value === prev)) {
+          filterObjectSelect.value = prev;
         } else {
           filterObjectSelect.value = "all";
           entryFilterObjectId = "all";
@@ -1136,9 +1047,9 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       }
 
       if (filterUserSelect) {
-        const previous = entryFilterUserId;
+        const prev = entryFilterUserId;
         filterUserSelect.innerHTML = '<option value="all">Alle</option>';
-        userIdsInEntries.forEach((id) => {
+        userIdsInEntries.forEach(id => {
           const usr = usersById[id];
           if (!usr) return;
           const opt = document.createElement("option");
@@ -1146,26 +1057,23 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
           opt.textContent = usr.username;
           filterUserSelect.appendChild(opt);
         });
-        if (previous && [...filterUserSelect.options].some(o => o.value === previous)) {
-          filterUserSelect.value = previous;
+        if (prev && [...filterUserSelect.options].some(o => o.value === prev)) {
+          filterUserSelect.value = prev;
         } else {
           filterUserSelect.value = "all";
           entryFilterUserId = "all";
         }
       }
 
-      // Filter anwenden
-      let relevantEntries = baseEntries.filter((e) => {
-        if (entryFilterObjectId !== "all" && String(e.objectId || "") !== entryFilterObjectId) {
+      const relevant = baseEntries.filter(e => {
+        if (entryFilterObjectId !== "all" && String(e.objectId || "") !== entryFilterObjectId)
           return false;
-        }
-        if (entryFilterUserId !== "all" && String(e.userId) !== entryFilterUserId) {
+        if (entryFilterUserId !== "all" && String(e.userId) !== entryFilterUserId)
           return false;
-        }
         return true;
       });
 
-      if (!relevantEntries || relevantEntries.length === 0) {
+      if (!relevant.length) {
         if (empty) empty.style.display = "block";
         if (totalEl) totalEl.textContent = "0h 00m";
         return;
@@ -1174,12 +1082,7 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       }
 
       let totalMinutes = 0;
-
-      const sorted = [...relevantEntries].sort((a, b) => {
-        const aKey = a.date + " " + a.start;
-        const bKey = b.date + " " + b.start;
-        return aKey.localeCompare(bKey);
-      });
+      const sorted = [...relevant].sort((a,b) => (a.date + " " + a.start).localeCompare(b.date + " " + b.start));
 
       for (const entry of sorted) {
         totalMinutes += entry.durationMinutes;
@@ -1196,7 +1099,9 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
           <td><span class="pill">${formatDuration(entry.durationMinutes)}</span></td>
           <td>${escapeHtml(objectName)}</td>
           <td class="description-cell">${escapeHtml(entry.description)}</td>
-          ${currentUser && (currentUser.role === "admin" || currentUser.role === "lead") ? `<td>${escapeHtml(username)}</td>` : `<td style="display:none"></td>`}
+          ${currentUser && (currentUser.role === "admin" || currentUser.role === "lead")
+            ? '<td>' + escapeHtml(username) + '</td>'
+            : '<td style="display:none"></td>'}
           <td><button type="button" class="btn-danger" data-id="${entry.id}">✕</button></td>
         `;
         tbody.appendChild(tr);
@@ -1204,37 +1109,45 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
 
       if (totalEl) totalEl.textContent = formatDuration(totalMinutes);
 
-      tbody.querySelectorAll("button.btn-danger[data-id]").forEach((btn) => {
-        btn.addEventListener("click", () => {
+      tbody.querySelectorAll("button.btn-danger[data-id]").forEach(btn => {
+        btn.addEventListener("click", async () => {
           const id = Number(btn.getAttribute("data-id"));
-          const idx = entries.findIndex((e) => e.id === id);
-          if (idx !== -1) {
+          const idx = entries.findIndex(e => e.id === id);
+          if (idx === -1) return;
+          const ok = confirm("Buchung wirklich löschen?");
+          if (!ok) return;
+          try {
+            const { error } = await supabaseClient
+              .from("entries")
+              .delete()
+              .eq("id", id);
+            if (error) {
+              console.error("Buchung löschen Fehler:", error);
+              alert("Buchung konnte nicht gelöscht werden.");
+              return;
+            }
             entries.splice(idx, 1);
-            saveToStorage(STORAGE_KEY_ENTRIES, entries);
             renderEntries();
+          } catch (e) {
+            console.error("Buchung löschen Fehler:", e);
+            alert("Unbekannter Fehler beim Löschen der Buchung.");
           }
         });
       });
     }
+
     function updateCurrentUserUI() {
-      const usernameEl = document.getElementById("current-username");
-      const rolePillEl = document.getElementById("current-role-pill");
+      const nameEl = document.getElementById("current-username");
+      const rolePill = document.getElementById("current-role-pill");
       const adminSections = document.querySelectorAll(".admin-only");
-
       if (!currentUser) return;
-
-      if (usernameEl) usernameEl.textContent = currentUser.username;
-      if (rolePillEl) {
-        if (currentUser.role === "admin") {
-          rolePillEl.textContent = "Admin";
-        } else if (currentUser.role === "lead") {
-          rolePillEl.textContent = "Objektleitung";
-        } else {
-          rolePillEl.textContent = "Mitarbeiter";
-        }
+      if (nameEl) nameEl.textContent = currentUser.username;
+      if (rolePill) {
+        if (currentUser.role === "admin") rolePill.textContent = "Admin";
+        else if (currentUser.role === "lead") rolePill.textContent = "Objektleitung";
+        else rolePill.textContent = "Mitarbeiter";
       }
-
-      adminSections.forEach((sec) => {
+      adminSections.forEach(sec => {
         sec.style.display = currentUser.role === "admin" ? "block" : "none";
       });
     }
@@ -1243,7 +1156,6 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       document.getElementById("login-view").style.display = "block";
       document.getElementById("app-view").style.display = "none";
     }
-
     function showAppView() {
       document.getElementById("login-view").style.display = "none";
       document.getElementById("app-view").style.display = "block";
@@ -1254,49 +1166,40 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       renderEntries();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      users = loadFromStorage(STORAGE_KEY_USERS, []);
-      objects = loadFromStorage(STORAGE_KEY_OBJECTS, []);
-      entries = loadFromStorage(STORAGE_KEY_ENTRIES, []);
+    document.addEventListener("DOMContentLoaded", async () => {
       currentUser = loadFromStorage(STORAGE_KEY_CURRENT_USER, null);
-
-      users = (users || []).map((u) => ({
-        ...u,
-        allowedObjectIds: Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : []
-      }));
-
-      initDefaultAdmin();
+      await ensureDefaultAdmin();
+      const ok = await loadAllData();
+      if (!ok) {
+        showLoginView();
+        return;
+      }
 
       if (currentUser) {
-        const stillExists = users.find((u) => u.id === currentUser.id);
+        const stillExists = users.find(u => u.id === currentUser.id);
         if (!stillExists) {
           currentUser = null;
           saveToStorage(STORAGE_KEY_CURRENT_USER, null);
         }
       }
 
-      if (currentUser) {
-        showAppView();
-      } else {
-        showLoginView();
-      }
-
-      const today = new Date().toISOString().slice(0, 10);
+      const today = new Date().toISOString().slice(0,10);
       const dateInput = document.getElementById("date");
       if (dateInput) dateInput.value = today;
 
+      if (currentUser) showAppView();
+      else showLoginView();
+
       const loginForm = document.getElementById("login-form");
-      loginForm.addEventListener("submit", (e) => {
+      loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const username = document.getElementById("login-username").value.trim();
         const password = document.getElementById("login-password").value;
-
-        const user = findUserByCredentials(username, password);
+        const user = users.find(u => u.username === username && u.password === password);
         if (!user) {
           alert("Login fehlgeschlagen.");
           return;
         }
-
         currentUser = { id: user.id, username: user.username, role: user.role };
         saveToStorage(STORAGE_KEY_CURRENT_USER, currentUser);
         showAppView();
@@ -1310,13 +1213,12 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       });
 
       const entryForm = document.getElementById("entry-form");
-      entryForm.addEventListener("submit", (e) => {
+      entryForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!currentUser) {
           alert("Nicht eingeloggt.");
           return;
         }
-
         const date = document.getElementById("date").value;
         const start = document.getElementById("start").value;
         const end = document.getElementById("end").value;
@@ -1328,71 +1230,85 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
           alert("Datum, Start und Ende sind Pflicht.");
           return;
         }
-
-        const allowedObjects = getAllowedObjectsForCurrentUser();
-        if (currentUser.role !== "admin" && (!allowedObjects || allowedObjects.length === 0)) {
+        const allowed = getAllowedObjectsForCurrentUser();
+        if (currentUser.role !== "admin" && !allowed.length) {
           alert("Dir sind keine Objekte zugewiesen. Bitte Admin fragen.");
           return;
         }
-
         if (!objectId) {
           if (currentUser.role === "admin") {
-            const proceed = confirm("Kein Objekt ausgewählt. Trotzdem buchen?");
-            if (!proceed) return;
+            const go = confirm("Kein Objekt gewählt. Trotzdem buchen?");
+            if (!go) return;
           } else {
             alert("Du musst ein Objekt auswählen.");
             return;
           }
         }
-
-        const durationMinutes = calcDurationMinutes(start, end);
-        if (durationMinutes <= 0) {
+        const minutes = calcDurationMinutes(start, end);
+        if (minutes <= 0) {
           alert("Ende muss nach Start liegen.");
           return;
         }
-
-        const newEntry = {
-          id: Date.now(),
-          userId: currentUser.id,
-          date,
-          start,
-          end,
-          objectId,
-          durationMinutes,
-          description
-        };
-
-        entries.push(newEntry);
-        saveToStorage(STORAGE_KEY_ENTRIES, entries);
-        renderEntries();
-
-        entryForm.reset();
-        const dateInput2 = document.getElementById("date");
-        if (dateInput2) dateInput2.value = today;
-        renderObjectsSelect();
+        try {
+          const { data, error } = await supabaseClient
+            .from("entries")
+            .insert([{ user_id: currentUser.id, object_id: objectId, date, start, end, duration_minutes: minutes, description }])
+            .select();
+          if (error) {
+            console.error("Buchung speichern Fehler:", error);
+            alert("Buchung konnte nicht gespeichert werden.");
+            return;
+          }
+          const inserted = Array.isArray(data) && data.length ? data[0] : null;
+          if (!inserted) {
+            alert("Unerwartete Antwort beim Speichern.");
+            return;
+          }
+          entries.push(mapEntryRow(inserted));
+          renderEntries();
+          entryForm.reset();
+          if (dateInput) dateInput.value = today;
+          renderObjectsSelect();
+        } catch (e2) {
+          console.error("Buchung speichern Fehler:", e2);
+          alert("Unbekannter Fehler beim Speichern der Buchung.");
+        }
       });
 
       const objectForm = document.getElementById("object-form");
-      objectForm.addEventListener("submit", (e) => {
+      objectForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const nameInput = document.getElementById("object-name");
         const name = nameInput.value.trim();
         if (!name) return;
-
-        const newObj = {
-          id: Date.now(),
-          name
-        };
-        objects.push(newObj);
-        saveToStorage(STORAGE_KEY_OBJECTS, objects);
-        nameInput.value = "";
-        renderObjectsTable();
-        renderObjectsSelect();
-        renderUsersTable();
+        try {
+          const { data, error } = await supabaseClient
+            .from("objects")
+            .insert([{ name }])
+            .select();
+          if (error) {
+            console.error("Objekt speichern Fehler:", error);
+            alert("Objekt konnte nicht angelegt werden.");
+            return;
+          }
+          const inserted = Array.isArray(data) && data.length ? data[0] : null;
+          if (!inserted) {
+            alert("Unerwartete Antwort beim Anlegen des Objekts.");
+            return;
+          }
+          objects.push(inserted);
+          nameInput.value = "";
+          renderObjectsTable();
+          renderObjectsSelect();
+          renderUsersTable();
+        } catch (e2) {
+          console.error("Objekt speichern Fehler:", e2);
+          alert("Unbekannter Fehler beim Anlegen des Objekts.");
+        }
       });
 
       const userForm = document.getElementById("user-form");
-      userForm.addEventListener("submit", (e) => {
+      userForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const usernameInput = document.getElementById("user-username");
         const passwordInput = document.getElementById("user-password");
@@ -1406,64 +1322,53 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
           alert("Benutzername und Passwort sind Pflicht.");
           return;
         }
-
-        if (users.find((u) => u.username === username)) {
+        if (users.find(u => u.username === username)) {
           alert("Benutzername existiert bereits.");
           return;
         }
-
-        const newUser = {
-          id: Date.now(),
-          username,
-          password,
-          role,
-          allowedObjectIds: []
-        };
-        users.push(newUser);
-        saveToStorage(STORAGE_KEY_USERS, users);
-        usernameInput.value = "";
-        passwordInput.value = "";
-        roleSelect.value = "user";
-        renderUsersTable();
+        try {
+          const { data, error } = await supabaseClient
+            .from("users")
+            .insert([{ username, password, role, allowed_object_ids: [] }])
+            .select();
+          if (error) {
+            console.error("Benutzer speichern Fehler:", error);
+            alert("Benutzer konnte nicht angelegt werden.");
+            return;
+          }
+          const inserted = Array.isArray(data) && data.length ? data[0] : null;
+          if (!inserted) {
+            alert("Unerwartete Antwort beim Anlegen des Benutzers.");
+            return;
+          }
+          users.push(mapUserRow(inserted));
+          usernameInput.value = "";
+          passwordInput.value = "";
+          roleSelect.value = "user";
+          renderUsersTable();
+        } catch (e2) {
+          console.error("Benutzer speichern Fehler:", e2);
+          alert("Unbekannter Fehler beim Anlegen des Benutzers.");
+        }
       });
 
-
-      // Modal-Events für Objekt-Zuweisung
       const modalBackdrop = document.getElementById("object-modal-backdrop");
       const modalSearch = document.getElementById("object-modal-search");
       const modalCloseBtn = document.getElementById("object-modal-close");
       const modalCancelBtn = document.getElementById("object-modal-cancel");
       const modalSaveBtn = document.getElementById("object-modal-save");
 
-      if (modalSearch) {
-        modalSearch.addEventListener("input", () => {
-          renderObjectModalList();
-        });
-      }
-
-      if (modalCloseBtn) {
-        modalCloseBtn.addEventListener("click", () => {
-          closeObjectModal();
-        });
-      }
-
-      if (modalCancelBtn) {
-        modalCancelBtn.addEventListener("click", () => {
-          closeObjectModal();
-        });
-      }
-
+      if (modalSearch) modalSearch.addEventListener("input", () => renderObjectModalList());
+      if (modalCloseBtn) modalCloseBtn.addEventListener("click", () => closeObjectModal());
+      if (modalCancelBtn) modalCancelBtn.addEventListener("click", () => closeObjectModal());
       if (modalBackdrop) {
         modalBackdrop.addEventListener("click", (e) => {
-          if (e.target === modalBackdrop) {
-            closeObjectModal();
-          }
+          if (e.target === modalBackdrop) closeObjectModal();
         });
       }
-
       if (modalSaveBtn) {
-        modalSaveBtn.addEventListener("click", () => {
-          const user = users.find((u) => u.id === objectModalUserId);
+        modalSaveBtn.addEventListener("click", async () => {
+          const user = users.find(u => u.id === objectModalUserId);
           if (!user) {
             closeObjectModal();
             return;
@@ -1473,83 +1378,53 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
             closeObjectModal();
             return;
           }
-
-          const checkboxes = listEl.querySelectorAll("input[type=\"checkbox\"]");
+          const cbs = listEl.querySelectorAll("input[type=\"checkbox\"]");
           const newIds = [];
-          checkboxes.forEach((cb) => {
+          cbs.forEach(cb => {
             if (cb.checked) {
-              const val = Number(cb.value);
-              if (!Number.isNaN(val)) {
-                newIds.push(val);
-              }
+              const v = Number(cb.value);
+              if (!Number.isNaN(v)) newIds.push(v);
             }
           });
-
-          user.allowedObjectIds = newIds;
-          saveToStorage(STORAGE_KEY_USERS, users);
-          renderUsersTable();
-          if (currentUser && currentUser.id === user.id) {
-            renderObjectsSelect();
+          try {
+            const { error } = await supabaseClient
+              .from("users")
+              .update({ allowed_object_ids: newIds })
+              .eq("id", user.id);
+            if (error) {
+              console.error("Objekt-Zuweisung speichern Fehler:", error);
+              alert("Objekte konnten nicht gespeichert werden.");
+              return;
+            }
+            user.allowedObjectIds = newIds;
+            renderUsersTable();
+            if (currentUser && currentUser.id === user.id) {
+              renderObjectsSelect();
+              renderEntries();
+            }
+            closeObjectModal();
+          } catch (e2) {
+            console.error("Objekt-Zuweisung speichern Fehler:", e2);
+            alert("Unbekannter Fehler bei Objekt-Zuweisung.");
           }
-          closeObjectModal();
         });
       }
 
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          closeObjectModal();
-        }
-      });
-
-
       const filterObjectSelect = document.getElementById("filter-object");
       const filterUserSelect = document.getElementById("filter-user");
-
       if (filterObjectSelect) {
         filterObjectSelect.addEventListener("change", () => {
           entryFilterObjectId = filterObjectSelect.value || "all";
           renderEntries();
         });
       }
-
       if (filterUserSelect) {
         filterUserSelect.addEventListener("change", () => {
           entryFilterUserId = filterUserSelect.value || "all";
           renderEntries();
         });
       }
-
-      renderObjectsSelect();
-      renderObjectsTable();
-      renderUsersTable();
-      renderEntries();
     });
   </script>
-
-  <!-- Modal: Objekte zuweisen -->
-  <div id="object-modal-backdrop" class="modal-backdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="object-modal-title">
-      <div class="modal-header">
-        <div class="modal-title" id="object-modal-title">
-          Objekte zuweisen – <span id="object-modal-username"></span>
-        </div>
-        <button type="button" id="object-modal-close" class="btn-secondary small-btn">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-search">
-          <label for="object-modal-search">Objekte suchen</label>
-          <input type="text" id="object-modal-search" placeholder="Name oder Teil davon eingeben…" />
-        </div>
-        <div id="object-modal-list" class="modal-list">
-          <!-- Checkbox-Liste wird per JS gefüllt -->
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button type="button" id="object-modal-cancel" class="btn-secondary">Abbrechen</button>
-        <button type="button" id="object-modal-save" class="btn-primary">Speichern</button>
-      </div>
-    </div>
-  </div>
-
 </body>
 </html>
