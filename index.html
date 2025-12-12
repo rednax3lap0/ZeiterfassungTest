@@ -676,8 +676,15 @@
       </div>
     </div>
   </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
+    const SUPABASE_URL = "https://mgxrmoqpbbnahtijyjci.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_fS_r7bbCuYcOJKn3DNF0Nw_KqVEVftw";
+
+    const { createClient } = supabase; // kommt von dem CDN-Script oben
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
     const STORAGE_KEY_USERS = "timeApp_users_v2";
     const STORAGE_KEY_OBJECTS = "timeApp_objects_v1";
     const STORAGE_KEY_ENTRIES = "timeApp_entries_v1";
