@@ -303,6 +303,23 @@
       gap: 8px;
     }
 
+
+    .badge-lead {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 8px;
+    }
+
+    .filters-row > div {
+      flex: 1 1 0;
+      min-width: 140px;
+    }
     /* Tablet */
     @media (max-width: 900px) {
       .layout {
@@ -550,6 +567,21 @@
               <div>
                 Summe: <strong id="total-hours">0h 00m</strong>
               </div>
+            
+            </div>
+            <div class="filters-row">
+              <div>
+                <label for="filter-object">Objekt</label>
+                <select id="filter-object">
+                  <option value="all">Alle</option>
+                </select>
+              </div>
+              <div>
+                <label for="filter-user">Mitarbeiter</label>
+                <select id="filter-user">
+                  <option value="all">Alle</option>
+                </select>
+              </div>
             </div>
             <div class="table-wrapper">
               <table>
@@ -617,6 +649,7 @@
                 <label for="user-role">Rolle</label>
                 <select id="user-role">
                   <option value="user">Mitarbeiter</option>
+                  <option value="lead">Objektleitung</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
@@ -656,6 +689,9 @@
     let currentUser = null;
 
     let objectModalUserId = null;
+    let entryFilterObjectId = "all";
+    let entryFilterUserId = "all";
+
 
 
     function loadFromStorage(key, fallback) {
@@ -824,8 +860,18 @@
 
       for (const user of users) {
         const tr = document.createElement("tr");
-        const roleLabel = user.role === "admin" ? "Admin" : "Mitarbeiter";
-        const badgeClass = user.role === "admin" ? "badge-admin" : "badge-user";
+        let roleLabel;
+        let badgeClass;
+        if (user.role === "admin") {
+          roleLabel = "Admin";
+          badgeClass = "badge-admin";
+        } else if (user.role === "lead") {
+          roleLabel = "Objektleitung";
+          badgeClass = "badge-lead";
+        } else {
+          roleLabel = "Mitarbeiter";
+          badgeClass = "badge-user";
+        }
 
         const allowedIds = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
         let objectsLabel;
@@ -980,32 +1026,137 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       }
     }
 
+    
     function renderEntries() {
       const tbody = document.getElementById("entries-body");
       const empty = document.getElementById("empty-state");
       const totalEl = document.getElementById("total-hours");
       const thUser = document.getElementById("th-user");
       const subtitleEl = document.getElementById("entries-subtitle");
+      const filterObjectSelect = document.getElementById("filter-object");
+      const filterUserSelect = document.getElementById("filter-user");
 
       if (!tbody) return;
       tbody.innerHTML = "";
 
       if (!entries) entries = [];
 
-      let relevantEntries = entries;
-      if (!currentUser) {
-        relevantEntries = [];
-      } else if (currentUser.role !== "admin") {
-        relevantEntries = entries.filter((e) => e.userId === currentUser.id);
+      // aktuelle Filterwerte merken
+      if (filterObjectSelect) {
+        entryFilterObjectId = filterObjectSelect.value || "all";
+      }
+      if (filterUserSelect) {
+        entryFilterUserId = filterUserSelect.value || "all";
       }
 
-      if (currentUser && currentUser.role === "admin") {
+      let baseEntries = entries;
+      if (!currentUser) {
+        baseEntries = [];
+      } else if (currentUser.role === "admin") {
+        baseEntries = entries;
+      } else if (currentUser.role === "lead") {
+        const u = users.find((usr) => usr.id === currentUser.id);
+        const allowedIds = u && Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
+        baseEntries = entries.filter((e) => !e.objectId || allowedIds.includes(e.objectId));
+      } else {
+        baseEntries = entries.filter((e) => e.userId === currentUser.id);
+      }
+
+      if (currentUser && (currentUser.role === "admin" || currentUser.role === "lead")) {
         if (thUser) thUser.style.display = "";
-        if (subtitleEl) subtitleEl.textContent = " – alle Benutzer";
+        if (subtitleEl) {
+          subtitleEl.textContent = currentUser.role === "admin"
+            ? " – alle Benutzer"
+            : " – eigene Objekte";
+        }
       } else {
         if (thUser) thUser.style.display = "none";
         if (subtitleEl) subtitleEl.textContent = "";
       }
+
+      if (!baseEntries || baseEntries.length === 0) {
+        if (empty) empty.style.display = "block";
+        if (totalEl) totalEl.textContent = "0h 00m";
+        // Filter-Selects trotzdem aktualisieren (leere Auswahl)
+        if (filterObjectSelect) {
+          filterObjectSelect.innerHTML = '<option value="all">Alle</option>';
+        }
+        if (filterUserSelect) {
+          filterUserSelect.innerHTML = '<option value="all">Alle</option>';
+        }
+        return;
+      } else {
+        if (empty) empty.style.display = "none";
+      }
+
+      // Maps für Objekte/Benutzer
+      const objectsById = {};
+      for (const obj of objects) {
+        objectsById[obj.id] = obj;
+      }
+
+      const usersById = {};
+      for (const u of users) {
+        usersById[u.id] = u;
+      }
+
+      // Filter-Dropdowns aus Basis-Einträgen generieren
+      const objectIdsInEntries = new Set();
+      const userIdsInEntries = new Set();
+      for (const e of baseEntries) {
+        if (e.objectId) objectIdsInEntries.add(e.objectId);
+        if (e.userId) userIdsInEntries.add(e.userId);
+      }
+
+      if (filterObjectSelect) {
+        const previous = entryFilterObjectId;
+        filterObjectSelect.innerHTML = '<option value="all">Alle</option>';
+        objectIdsInEntries.forEach((id) => {
+          const obj = objectsById[id];
+          if (!obj) return;
+          const opt = document.createElement("option");
+          opt.value = String(id);
+          opt.textContent = obj.name;
+          filterObjectSelect.appendChild(opt);
+        });
+        // Versuch, vorherige Auswahl wiederherzustellen
+        if (previous && [...filterObjectSelect.options].some(o => o.value === previous)) {
+          filterObjectSelect.value = previous;
+        } else {
+          filterObjectSelect.value = "all";
+          entryFilterObjectId = "all";
+        }
+      }
+
+      if (filterUserSelect) {
+        const previous = entryFilterUserId;
+        filterUserSelect.innerHTML = '<option value="all">Alle</option>';
+        userIdsInEntries.forEach((id) => {
+          const usr = usersById[id];
+          if (!usr) return;
+          const opt = document.createElement("option");
+          opt.value = String(id);
+          opt.textContent = usr.username;
+          filterUserSelect.appendChild(opt);
+        });
+        if (previous && [...filterUserSelect.options].some(o => o.value === previous)) {
+          filterUserSelect.value = previous;
+        } else {
+          filterUserSelect.value = "all";
+          entryFilterUserId = "all";
+        }
+      }
+
+      // Filter anwenden
+      let relevantEntries = baseEntries.filter((e) => {
+        if (entryFilterObjectId !== "all" && String(e.objectId || "") !== entryFilterObjectId) {
+          return false;
+        }
+        if (entryFilterUserId !== "all" && String(e.userId) !== entryFilterUserId) {
+          return false;
+        }
+        return true;
+      });
 
       if (!relevantEntries || relevantEntries.length === 0) {
         if (empty) empty.style.display = "block";
@@ -1016,16 +1167,6 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
       }
 
       let totalMinutes = 0;
-
-      const objectsById = {};
-      for (const obj of objects) {
-        objectsById[obj.id] = obj;
-      }
-
-      const usersById = {};
-      for (const u of users) {
-        usersById[u.id] = u;
-      }
 
       const sorted = [...relevantEntries].sort((a, b) => {
         const aKey = a.date + " " + a.start;
@@ -1048,7 +1189,7 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
           <td><span class="pill">${formatDuration(entry.durationMinutes)}</span></td>
           <td>${escapeHtml(objectName)}</td>
           <td class="description-cell">${escapeHtml(entry.description)}</td>
-          ${currentUser && currentUser.role === "admin" ? `<td>${escapeHtml(username)}</td>` : `<td style="display:none"></td>`}
+          ${currentUser && (currentUser.role === "admin" || currentUser.role === "lead") ? `<td>${escapeHtml(username)}</td>` : `<td style="display:none"></td>`}
           <td><button type="button" class="btn-danger" data-id="${entry.id}">✕</button></td>
         `;
         tbody.appendChild(tr);
@@ -1068,7 +1209,6 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
         });
       });
     }
-
     function updateCurrentUserUI() {
       const usernameEl = document.getElementById("current-username");
       const rolePillEl = document.getElementById("current-role-pill");
@@ -1078,7 +1218,13 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
 
       if (usernameEl) usernameEl.textContent = currentUser.username;
       if (rolePillEl) {
-        rolePillEl.textContent = currentUser.role === "admin" ? "Admin" : "Mitarbeiter";
+        if (currentUser.role === "admin") {
+          rolePillEl.textContent = "Admin";
+        } else if (currentUser.role === "lead") {
+          rolePillEl.textContent = "Objektleitung";
+        } else {
+          rolePillEl.textContent = "Mitarbeiter";
+        }
       }
 
       adminSections.forEach((sec) => {
@@ -1347,6 +1493,24 @@ tbody.querySelectorAll("button[data-edit-objects]").forEach((btn) => {
           closeObjectModal();
         }
       });
+
+
+      const filterObjectSelect = document.getElementById("filter-object");
+      const filterUserSelect = document.getElementById("filter-user");
+
+      if (filterObjectSelect) {
+        filterObjectSelect.addEventListener("change", () => {
+          entryFilterObjectId = filterObjectSelect.value || "all";
+          renderEntries();
+        });
+      }
+
+      if (filterUserSelect) {
+        filterUserSelect.addEventListener("change", () => {
+          entryFilterUserId = filterUserSelect.value || "all";
+          renderEntries();
+        });
+      }
 
       renderObjectsSelect();
       renderObjectsTable();
