@@ -15,16 +15,17 @@
     }
 
     .page {
-      max-width: 1120px;
-      margin: 24px auto;
-      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0;
     }
 
     .card {
       background: #ffffff;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-      padding: 24px;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 16px 12px 24px;
+      min-height: 100vh;
     }
 
     h1 {
@@ -172,7 +173,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 2fr 1.3fr;
+      grid-template-columns: 1fr;
       gap: 16px;
       align-items: flex-start;
     }
@@ -219,7 +220,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      min-width: 640px;
+      min-width: 480px;
     }
 
     thead { background: #f3f4f6; }
@@ -363,7 +364,8 @@
         Supabase-Version mit zentraler Datenbank. Admin, Objektleitung und Mitarbeiter werden serverseitig gespeichert.
       </p>
       <div class="hint">
-        <Text>
+        Beim ersten Start wird automatisch ein Admin angelegt:<br>
+        Benutzername: <code>admin</code> – Passwort: <code>admin123</code>
       </div>
 
       <form id="login-form" class="login-form">
@@ -402,34 +404,32 @@
       <div class="layout">
         <!-- Links: Buchungen -->
         <div>
+          
           <section class="section">
-            <h2>Neue Buchung</h2>
-            <form id="entry-form" class="row">
+            <h2>Stempeluhr</h2>
+            <div id="stamp-status" class="hint" style="margin-bottom: 10px;">
+              Du bist aktuell nicht eingestempelt.
+            </div>
+            <form id="stamp-form" class="stack">
               <div>
-                <label for="date">Datum</label>
-                <input id="date" type="date" required>
+                <label for="stamp-object">Objekt</label>
+                <select id="stamp-object"></select>
               </div>
               <div>
-                <label for="start">Start</label>
-                <input id="start" type="time" required>
+                <label for="stamp-description">Beschreibung (optional)</label>
+                <input id="stamp-description" type="text" placeholder="z.B. Tätigkeit">
               </div>
-              <div>
-                <label for="end">Ende</label>
-                <input id="end" type="time" required>
-              </div>
-              <div>
-                <label for="object">Objekt</label>
-                <select id="object"></select>
-              </div>
-              <div>
-                <label for="description">Beschreibung</label>
-                <input id="description" type="text" placeholder="Aufgabe / Notiz">
-              </div>
-              <div>
-                <button type="submit" class="btn-primary">Buchung hinzufügen</button>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" id="stamp-button" class="btn-primary" style="flex:1 1 120px;">
+                  Einstempeln
+                </button>
+                <button type="button" id="stamp-stop-button" class="btn-secondary" style="flex:1 1 120px;" disabled>
+                  Ausstempeln
+                </button>
               </div>
             </form>
           </section>
+
 
           <section class="section">
             <div class="entries-header">
@@ -579,8 +579,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // HIER DEINE SUPABASE-DATEN EINTRAGEN
-    const SUPABASE_URL = "https://mgxrmoqpbbnahtijyjci.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_fS_r7bbCuYcOJKn3DNF0Nw_KqVEVftw";
+    const SUPABASE_URL = "https://DEIN-PROJEKT.supabase.co";
+    const SUPABASE_ANON_KEY = "DEIN_ANON_PUBLIC_KEY";
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -593,6 +593,39 @@
     let objectModalUserId = null;
     let entryFilterObjectId = "all";
     let entryFilterUserId = "all";
+
+    const STORAGE_KEY_ACTIVE_STAMPS = "timeApp_activeStamps_v1";
+    let activeStamps = {};
+
+    function loadActiveStamps() {
+      const saved = loadFromStorage(STORAGE_KEY_ACTIVE_STAMPS, {});
+      if (saved && typeof saved === "object") {
+        activeStamps = saved;
+      } else {
+        activeStamps = {};
+      }
+    }
+
+    function saveActiveStamps() {
+      saveToStorage(STORAGE_KEY_ACTIVE_STAMPS, activeStamps);
+    }
+
+    function getCurrentUserStamp() {
+      if (!currentUser) return null;
+      return activeStamps[String(currentUser.id)] || null;
+    }
+
+    function setCurrentUserStamp(stamp) {
+      if (!currentUser) return;
+      const key = String(currentUser.id);
+      if (stamp) {
+        activeStamps[key] = stamp;
+      } else {
+        delete activeStamps[key];
+      }
+      saveActiveStamps();
+    }
+
 
     function loadFromStorage(key, fallback) {
       try {
@@ -721,8 +754,9 @@
       return objects.filter(o => ids.includes(o.id));
     }
 
+    
     function renderObjectsSelect() {
-      const select = document.getElementById("object");
+      const select = document.getElementById("stamp-object");
       if (!select) return;
       select.innerHTML = "";
       if (!currentUser) {
@@ -733,6 +767,7 @@
         select.disabled = true;
         return;
       }
+
       const allowed = getAllowedObjectsForCurrentUser();
       if (!allowed.length) {
         const opt = document.createElement("option");
@@ -744,13 +779,20 @@
         select.disabled = true;
         return;
       }
-      select.disabled = false;
+
+      const activeStamp = getCurrentUserStamp();
+      select.disabled = !!activeStamp;
+
       allowed.forEach(o => {
         const opt = document.createElement("option");
         opt.value = String(o.id);
         opt.textContent = o.name;
         select.appendChild(opt);
       });
+
+      if (activeStamp) {
+        select.value = String(activeStamp.objectId);
+      }
     }
 
     function renderObjectsTable() {
@@ -1133,6 +1175,138 @@
           }
         });
       });
+
+    function updateStampUI() {
+      const statusEl = document.getElementById("stamp-status");
+      const objectSelect = document.getElementById("stamp-object");
+      const descInput = document.getElementById("stamp-description");
+      const stampButton = document.getElementById("stamp-button");
+      const stampStopButton = document.getElementById("stamp-stop-button");
+
+      if (!statusEl || !objectSelect || !stampButton || !stampStopButton) return;
+
+      if (!currentUser) {
+        statusEl.textContent = "Bitte einloggen, um zu stempeln.";
+        objectSelect.disabled = true;
+        if (descInput) descInput.disabled = true;
+        stampButton.disabled = true;
+        stampStopButton.disabled = true;
+        return;
+      }
+
+      const stamp = getCurrentUserStamp();
+      if (!stamp) {
+        statusEl.textContent = "Du bist aktuell nicht eingestempelt.";
+        objectSelect.disabled = false;
+        if (descInput) {
+          descInput.disabled = false;
+          descInput.value = "";
+        }
+        stampButton.disabled = false;
+        stampStopButton.disabled = true;
+      } else {
+        const obj = objects.find(o => o.id === stamp.objectId);
+        const objName = obj ? obj.name : "(Objekt)";
+        statusEl.textContent = "Eingestempelt seit " + stamp.start + " Uhr am " + stamp.date + " bei \"" + objName + "\".";
+        objectSelect.disabled = true;
+        if (descInput) {
+          descInput.disabled = true;
+          descInput.value = stamp.description || "";
+        }
+        // ensure current object is selected
+        const val = String(stamp.objectId);
+        if ([...objectSelect.options].some(o => o.value === val)) {
+          objectSelect.value = val;
+        }
+        stampButton.disabled = true;
+        stampStopButton.disabled = false;
+      }
+    }
+
+    async function handleStampIn() {
+      if (!currentUser) {
+        alert("Nicht eingeloggt.");
+        return;
+      }
+      if (getCurrentUserStamp()) {
+        alert("Du bist bereits eingestempelt.");
+        return;
+      }
+      const objectSelect = document.getElementById("stamp-object");
+      const descInput = document.getElementById("stamp-description");
+      const objectId = objectSelect && objectSelect.value ? Number(objectSelect.value) : null;
+      const description = descInput ? descInput.value.trim() : "";
+
+      const allowed = getAllowedObjectsForCurrentUser();
+      if (currentUser.role !== "admin" && (!allowed || !allowed.length)) {
+        alert("Dir sind keine Objekte zugewiesen. Bitte Admin fragen.");
+        return;
+      }
+      if (!objectId) {
+        alert("Bitte ein Objekt auswählen.");
+        return;
+      }
+
+      const now = new Date();
+      const date = now.toISOString().slice(0,10);
+      const time = now.toTimeString().slice(0,5);
+
+      setCurrentUserStamp({
+        date,
+        start: time,
+        objectId,
+        description
+      });
+      updateStampUI();
+    }
+
+    async function handleStampOut() {
+      if (!currentUser) {
+        alert("Nicht eingeloggt.");
+        return;
+      }
+      const stamp = getCurrentUserStamp();
+      if (!stamp) {
+        alert("Du bist nicht eingestempelt.");
+        return;
+      }
+
+      const now = new Date();
+      let endTime = now.toTimeString().slice(0,5);
+      let minutes = calcDurationMinutes(stamp.start, endTime);
+      if (minutes <= 0) {
+        minutes = 1;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("entries")
+          .insert([{
+            user_id: currentUser.id,
+            object_id: stamp.objectId,
+            date: stamp.date,
+            start: stamp.start,
+            end: endTime,
+            duration_minutes: minutes,
+            description: stamp.description || ""
+          }])
+          .select();
+        if (error) {
+          console.error("Buchung speichern Fehler:", error);
+          alert("Buchung konnte nicht gespeichert werden.");
+          return;
+        }
+        const inserted = Array.isArray(data) && data.length ? data[0] : null;
+        if (inserted) {
+          entries.push(mapEntryRow(inserted));
+          renderEntries();
+        }
+        setCurrentUserStamp(null);
+        updateStampUI();
+      } catch (e2) {
+        console.error("Buchung speichern Fehler:", e2);
+        alert("Unbekannter Fehler beim Speichern der Buchung.");
+      }
     }
 
     function updateCurrentUserUI() {
@@ -1165,8 +1339,11 @@
       renderEntries();
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
+    
+document.addEventListener("DOMContentLoaded", async () => {
       currentUser = loadFromStorage(STORAGE_KEY_CURRENT_USER, null);
+      loadActiveStamps();
+
       await ensureDefaultAdmin();
       const ok = await loadAllData();
       if (!ok) {
@@ -1181,10 +1358,6 @@
           saveToStorage(STORAGE_KEY_CURRENT_USER, null);
         }
       }
-
-      const today = new Date().toISOString().slice(0,10);
-      const dateInput = document.getElementById("date");
-      if (dateInput) dateInput.value = today;
 
       if (currentUser) showAppView();
       else showLoginView();
@@ -1202,6 +1375,7 @@
         currentUser = { id: user.id, username: user.username, role: user.role };
         saveToStorage(STORAGE_KEY_CURRENT_USER, currentUser);
         showAppView();
+        updateStampUI();
       });
 
       const logoutBtn = document.getElementById("logout-btn");
@@ -1211,68 +1385,18 @@
         showLoginView();
       });
 
-      const entryForm = document.getElementById("entry-form");
-      entryForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (!currentUser) {
-          alert("Nicht eingeloggt.");
-          return;
-        }
-        const date = document.getElementById("date").value;
-        const start = document.getElementById("start").value;
-        const end = document.getElementById("end").value;
-        const objectSelect = document.getElementById("object");
-        const objectId = objectSelect && objectSelect.value ? Number(objectSelect.value) : null;
-        const description = document.getElementById("description").value.trim();
-
-        if (!date || !start || !end) {
-          alert("Datum, Start und Ende sind Pflicht.");
-          return;
-        }
-        const allowed = getAllowedObjectsForCurrentUser();
-        if (currentUser.role !== "admin" && !allowed.length) {
-          alert("Dir sind keine Objekte zugewiesen. Bitte Admin fragen.");
-          return;
-        }
-        if (!objectId) {
-          if (currentUser.role === "admin") {
-            const go = confirm("Kein Objekt gewählt. Trotzdem buchen?");
-            if (!go) return;
-          } else {
-            alert("Du musst ein Objekt auswählen.");
-            return;
-          }
-        }
-        const minutes = calcDurationMinutes(start, end);
-        if (minutes <= 0) {
-          alert("Ende muss nach Start liegen.");
-          return;
-        }
-        try {
-          const { data, error } = await supabaseClient
-            .from("entries")
-            .insert([{ user_id: currentUser.id, object_id: objectId, date, start, end, duration_minutes: minutes, description }])
-            .select();
-          if (error) {
-            console.error("Buchung speichern Fehler:", error);
-            alert("Buchung konnte nicht gespeichert werden.");
-            return;
-          }
-          const inserted = Array.isArray(data) && data.length ? data[0] : null;
-          if (!inserted) {
-            alert("Unerwartete Antwort beim Speichern.");
-            return;
-          }
-          entries.push(mapEntryRow(inserted));
-          renderEntries();
-          entryForm.reset();
-          if (dateInput) dateInput.value = today;
-          renderObjectsSelect();
-        } catch (e2) {
-          console.error("Buchung speichern Fehler:", e2);
-          alert("Unbekannter Fehler beim Speichern der Buchung.");
-        }
-      });
+      const stampButton = document.getElementById("stamp-button");
+      const stampStopButton = document.getElementById("stamp-stop-button");
+      if (stampButton) {
+        stampButton.addEventListener("click", () => {
+          handleStampIn();
+        });
+      }
+      if (stampStopButton) {
+        stampStopButton.addEventListener("click", () => {
+          handleStampOut();
+        });
+      }
 
       const objectForm = document.getElementById("object-form");
       objectForm.addEventListener("submit", async (e) => {
@@ -1423,6 +1547,9 @@
           renderEntries();
         });
       }
+
+      updateStampUI();
+    });
     });
   </script>
 </body>
