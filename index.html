@@ -220,7 +220,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      min-width: 480px;
+      min-width: 0;
     }
 
     thead { background: #f3f4f6; }
@@ -350,7 +350,7 @@
         text-align: center;
         justify-content: center;
       }
-      table { min-width: 600px; font-size: 12px; }
+      table { width: 100%; font-size: 12px; }
       th, td { padding: 6px 6px; }
     }
   </style>
@@ -431,7 +431,7 @@
           </section>
 
 
-          <section class="section">
+          <section class="section" id="entries-section">
             <div class="entries-header">
               <div>
                 <strong id="entries-title">Erfasste Zeiten</strong>
@@ -579,8 +579,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // HIER DEINE SUPABASE-DATEN EINTRAGEN
-    const SUPABASE_URL = "https://mgxrmoqpbbnahtijyjci.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_fS_r7bbCuYcOJKn3DNF0Nw_KqVEVftw";
+    const SUPABASE_URL = "https://DEIN-PROJEKT.supabase.co";
+    const SUPABASE_ANON_KEY = "DEIN_ANON_PUBLIC_KEY";
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1178,7 +1178,7 @@
     }
 
     
-    function updateStampUI() {
+function updateStampUI() {
       const statusEl = document.getElementById("stamp-status");
       const objectSelect = document.getElementById("stamp-object");
       const descInput = document.getElementById("stamp-description");
@@ -1220,7 +1220,6 @@
           descInput.disabled = true;
           descInput.value = stamp.description || "";
         }
-        // ensure current object is selected
         const val = String(stamp.objectId);
         if ([...objectSelect.options].some(o => o.value === val)) {
           objectSelect.value = val;
@@ -1232,7 +1231,7 @@
       }
     }
 
-    async function handleStampIn() {
+async function handleStampIn() {
       if (!currentUser) {
         alert("Nicht eingeloggt.");
         return;
@@ -1318,20 +1317,30 @@
       }
     }
 
-    function updateCurrentUserUI() {
+    
+function updateCurrentUserUI() {
       const nameEl = document.getElementById("current-username");
       const rolePill = document.getElementById("current-role-pill");
       const adminSections = document.querySelectorAll(".admin-only");
+      const entriesSection = document.getElementById("entries-section");
+
       if (!currentUser) return;
+
       if (nameEl) nameEl.textContent = currentUser.username;
       if (rolePill) {
         if (currentUser.role === "admin") rolePill.textContent = "Admin";
         else if (currentUser.role === "lead") rolePill.textContent = "Objektleitung";
         else rolePill.textContent = "Mitarbeiter";
       }
+
       adminSections.forEach(sec => {
         sec.style.display = currentUser.role === "admin" ? "block" : "none";
       });
+
+      if (entriesSection) {
+        // Normale Mitarbeiter sehen nur die Stempeluhr, keine Liste
+        entriesSection.style.display = currentUser.role === "user" ? "none" : "block";
+      }
     }
 
     function showLoginView() {
