@@ -579,8 +579,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // HIER DEINE SUPABASE-DATEN EINTRAGEN
-    const SUPABASE_URL = "https://mgxrmoqpbbnahtijyjci.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_fS_r7bbCuYcOJKn3DNF0Nw_KqVEVftw";
+    const SUPABASE_URL = "https://DEIN-PROJEKT.supabase.co";
+    const SUPABASE_ANON_KEY = "DEIN_ANON_PUBLIC_KEY";
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1177,6 +1177,7 @@
       });
     }
 
+    
     function updateStampUI() {
       const statusEl = document.getElementById("stamp-status");
       const objectSelect = document.getElementById("stamp-object");
@@ -1192,6 +1193,8 @@
         if (descInput) descInput.disabled = true;
         stampButton.disabled = true;
         stampStopButton.disabled = true;
+        stampButton.style.display = "none";
+        stampStopButton.style.display = "none";
         return;
       }
 
@@ -1205,10 +1208,13 @@
         }
         stampButton.disabled = false;
         stampStopButton.disabled = true;
+        stampButton.style.display = "inline-flex";
+        stampStopButton.style.display = "none";
       } else {
         const obj = objects.find(o => o.id === stamp.objectId);
         const objName = obj ? obj.name : "(Objekt)";
-        statusEl.textContent = "Eingestempelt seit " + stamp.start + " Uhr am " + stamp.date + " bei \"" + objName + "\".";
+        statusEl.textContent =
+          "Eingestempelt seit " + stamp.start + " Uhr am " + stamp.date + " bei \"" + objName + "\".";
         objectSelect.disabled = true;
         if (descInput) {
           descInput.disabled = true;
@@ -1221,6 +1227,8 @@
         }
         stampButton.disabled = true;
         stampStopButton.disabled = false;
+        stampButton.style.display = "none";
+        stampStopButton.style.display = "inline-flex";
       }
     }
 
