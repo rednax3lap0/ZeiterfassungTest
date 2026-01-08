@@ -146,10 +146,35 @@
       margin-bottom: 12px;
       position: relative;
     }
+    .header-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     .header-right {
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+    .welcome-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .welcome-line {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .welcome-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logout-btn {
+      font-size: 12px;
+      padding-inline: 10px;
     }
     .menu-toggle {
       width: 32px;
@@ -441,24 +466,21 @@
     <!-- APP VIEW -->
     <div id="app-view" class="card" style="display:none;">
       <div class="app-header">
-        <div>
-          <h1>Interne Zeiterfassung</h1>
-          <p class="subtitle">
-            Einfache Stempeluhr mit Objekten, Rollen und zentraler Datenbank.
-          </p>
-        </div>
-        <div class="header-right">
+        <div class="header-main">
           <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Menü">
             <span class="menu-line"></span>
             <span class="menu-line"></span>
             <span class="menu-line"></span>
           </button>
-          <div class="user-badge">
-            Eingeloggt als <strong id="current-username"></strong>
-            <span id="current-role-pill" class="pill"></span><br />
-            <button id="logout-btn" class="btn-secondary" type="button">Logout</button>
+          <div class="welcome-text">
+            <div class="welcome-line">Willkommen</div>
+            <div class="welcome-name">
+              <strong id="current-username"></strong>
+              <span id="current-role-pill" class="pill"></span>
+            </div>
           </div>
         </div>
+        <button id="logout-btn" class="btn-secondary logout-btn" type="button">Logout</button>
         <div id="menu-dropdown" class="menu-dropdown">
           <button type="button" class="menu-item" data-section-target="stamp-section">Stempeluhr</button>
           <button type="button" class="menu-item" data-section-target="entries-section">Buchungen</button>
@@ -467,6 +489,7 @@
           <button type="button" class="menu-item" data-section-target="info-section">Infos &amp; Dokumente</button>
         </div>
       </div>
+
 
       <!-- STEMPELUHR -->
       <section class="section page-section page-active" id="stamp-section">
@@ -636,7 +659,7 @@
           <div>
             <h3 style="margin:10px 0 4px;font-size:14px;">Dokumente</h3>
             <ul style="margin:0;padding-left:18px;font-size:13px;">
-              <li><a href="docs/pflaumenkuchen-mit-streuseln.pdf" target="_blank" rel="noopener noreferrer">Beispiel: Datenschutz-Hinweise (PDF)</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Beispiel: Datenschutz-Hinweise (PDF)</a></li>
             </ul>
             <div class="hint">Links hier einfach auf eure echten PDF-URLs anpassen.</div>
           </div>
