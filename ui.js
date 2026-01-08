@@ -676,12 +676,46 @@ function closeQrModal() {
   stopQrScanner();
 }
 
+function renderInfoSection() {
+  var listEl = qs("docs-list");
+  if (!listEl) return;
+
+  listEl.innerHTML = "";
+
+  var links = [];
+  if (typeof window !== "undefined" && Array.isArray(window.DOC_LINKS)) {
+    links = window.DOC_LINKS;
+  }
+
+  if (!links.length) {
+    var li = document.createElement("li");
+    li.textContent = "Noch keine Dokumente hinterlegt.";
+    listEl.appendChild(li);
+    return;
+  }
+
+  links.forEach(function (item) {
+    if (!item || !item.href) return;
+    var label = item.label || item.href;
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.href = item.href;
+    a.textContent = label;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    li.appendChild(a);
+    listEl.appendChild(li);
+  });
+}
+
+
 function renderAll() {
   renderUserBadge();
   renderStampSection();
   renderEntriesSection();
   renderObjectsSection();
   renderUsersSection();
+  renderInfoSection();
 }
 
 function onStampInClick() {

@@ -81,11 +81,11 @@
     }
 
     .btn-primary {
-      padding: 9px 14px;
+      padding: 12px 16px;
       border-radius: 999px;
       background: #2563eb;
       color: #ffffff;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       box-shadow: 0 4px 10px rgba(37,99,235,0.35);
       white-space: nowrap;
@@ -252,7 +252,7 @@
     .badge-user { background: #e5e7eb; color: #374151; }
     .badge-lead { background: #dbeafe; color: #1d4ed8; }
 
-    .section { margin-top: 16px; }
+    .section { margin-top: 20px; }
     .page-section { display: none; }
     .page-section.page-active { display: block; }
 
@@ -421,18 +421,30 @@
     }
 
     @media (max-width: 640px) {
-      .page { padding: 6px; }
+      body {
+        font-size: 15px;
+      }
+      .page {
+        max-width: 480px;
+        padding: 0;
+        min-height: 100vh;
+      }
       .card {
         border-radius: 0;
         margin: 0;
         box-shadow: none;
+        min-height: 100vh;
+        padding: 16px 16px 24px;
       }
-      .app-header {
+      .section {
+        margin-top: 28px;
+      }
+      .stamp-buttons {
         flex-direction: column;
-        align-items: flex-start;
       }
-      .user-badge {
-        text-align: left;
+      .stamp-buttons > button {
+        flex: 1 1 auto;
+        width: 100%;
       }
     }
   </style>
@@ -658,10 +670,10 @@
           </div>
           <div>
             <h3 style="margin:10px 0 4px;font-size:14px;">Dokumente</h3>
-            <ul style="margin:0;padding-left:18px;font-size:13px;">
-              <li><a href="docs/pflaumenkuchen-mit-streuseln.pdf" target="_blank" rel="noopener noreferrer">Beispiel: Datenschutz-Hinweise (PDF)</a></li>
+            <ul id="docs-list" style="margin:0;padding-left:18px;font-size:13px;">
+              <!-- Wird dynamisch aus docs.js befüllt -->
             </ul>
-            <div class="hint">Links hier einfach auf eure echten PDF-URLs anpassen.</div>
+            <div class="hint">Dokumente werden aus <code>docs.js</code> geladen.</div>
           </div>
         </div>
       </section>
@@ -730,6 +742,8 @@
 
   <!-- QR-Scanner Bibliothek -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <!-- Dokumenten-Konfiguration -->
+  <script src="./docs.js"></script>
   <!-- Einstiegspunkt -->
   <script type="module" src="./ui.js"></script>
 </body>
