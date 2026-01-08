@@ -69,7 +69,13 @@ function renderUserBadge() {
   }
 
   adminSections.forEach(function (sec) {
-    sec.style.display = isAdmin() ? "block" : "none";
+    if (isAdmin()) {
+      // Admin darf die Bereiche sehen, Sichtbarkeit steuert aber die page-active-Klasse
+      sec.style.display = "";
+    } else {
+      // Für Nicht-Admins komplett ausblenden
+      sec.style.display = "none";
+    }
   });
 
   if (entriesSection) {
