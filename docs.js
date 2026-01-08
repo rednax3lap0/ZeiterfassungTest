@@ -4,10 +4,10 @@
 
 // Beispiel:
 window.DOC_LINKS = [
-  // {
-  //   href: "docs/datenschutz_mitarbeiter.pdf",
-  //   label: "Datenschutz-Hinweise (PDF)",
-  // },
+   {
+     href: "docs/pflaumenkuchen-mit-streuseln.pdf",
+     label: "Datenschutz-Hinweise (PDF)",
+   },
   // {
   //   href: "docs/unterweisung_2025.pdf",
   //   label: "Sicherheitsunterweisung 2025 (PDF)",
