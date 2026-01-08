@@ -2,48 +2,48 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <title>Interne Zeiterfassung – Supabase-Version</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Interne Zeiterfassung</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #ffffff;
+      background: #f3f4f6;
       color: #111827;
     }
 
     .page {
-      max-width: 100%;
-      margin: 0;
-      padding: 0;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 8px;
     }
 
     .card {
       background: #ffffff;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 16px 12px 24px;
-      min-height: 100vh;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      padding: 16px 14px 20px;
+      margin: 8px 0;
     }
 
     h1 {
       margin: 0 0 8px;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
     }
 
     h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
+      margin: 0 0 10px;
+      font-size: 17px;
       font-weight: 600;
     }
 
     .subtitle {
-      margin: 0 0 16px;
+      margin: 0 0 10px;
       color: #6b7280;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     label {
@@ -56,11 +56,9 @@
 
     input[type="text"],
     input[type="password"],
-    input[type="date"],
-    input[type="time"],
     select {
       width: 100%;
-      padding: 9px 11px;
+      padding: 8px 10px;
       border-radius: 10px;
       border: 1px solid #d1d5db;
       font-size: 14px;
@@ -83,7 +81,7 @@
     }
 
     .btn-primary {
-      padding: 9px 16px;
+      padding: 9px 14px;
       border-radius: 999px;
       background: #2563eb;
       color: #ffffff;
@@ -91,27 +89,33 @@
       font-weight: 600;
       box-shadow: 0 4px 10px rgba(37,99,235,0.35);
       white-space: nowrap;
-      transition: background .15s ease, transform .1s ease, box-shadow .15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
     }
 
-    .btn-primary:hover {
-      background: #1d4ed8;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 15px rgba(37,99,235,0.45);
+    .btn-primary:disabled {
+      opacity: 0.5;
+      box-shadow: none;
+      cursor: default;
     }
 
     .btn-secondary {
-      padding: 7px 12px;
+      padding: 7px 10px;
       border-radius: 999px;
       background: #e5e7eb;
       color: #111827;
       font-size: 13px;
       font-weight: 500;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-danger {
-      padding: 4px 9px;
+      padding: 4px 8px;
       border-radius: 999px;
       background: #fee2e2;
       color: #b91c1c;
@@ -122,10 +126,9 @@
     .small-btn { padding: 3px 7px; font-size: 11px; }
 
     .login-form {
-      max-width: 380px;
-      margin-top: 16px;
       display: grid;
-      gap: 12px;
+      gap: 10px;
+      margin-top: 12px;
     }
 
     .hint {
@@ -138,14 +141,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .user-badge {
       font-size: 13px;
       color: #4b5563;
+      text-align: right;
     }
 
     .pill {
@@ -155,9 +159,9 @@
       border-radius: 999px;
       background: #e0f2fe;
       color: #0369a1;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
-      margin-left: 6px;
+      margin-left: 4px;
     }
 
     .badge {
@@ -171,29 +175,27 @@
     .badge-user { background: #e5e7eb; color: #374151; }
     .badge-lead { background: #dbeafe; color: #1d4ed8; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      align-items: flex-start;
+    .section { margin-top: 16px; }
+
+    .stack { display: grid; gap: 8px; }
+
+    .stamp-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .section { margin-top: 22px; }
-
-    form.row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
-      gap: 10px;
-      align-items: end;
+    .stamp-buttons > button {
+      flex: 1 1 140px;
     }
 
     .entries-header {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
-      margin: 8px 0 8px;
-      font-size: 14px;
+      margin: 8px 0;
+      font-size: 13px;
       flex-wrap: wrap;
     }
 
@@ -201,16 +203,15 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 0 0 8px;
+      margin-bottom: 8px;
     }
     .filters-row > div {
-      flex: 1 1 0;
-      min-width: 140px;
+      flex: 1 1 140px;
     }
 
-    .table-wrapper {
+    .table-container {
       width: 100%;
-      border-radius: 12px;
+      border-radius: 10px;
       border: 1px solid #e5e7eb;
       background: #ffffff;
       overflow-x: auto;
@@ -219,17 +220,19 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 12px;
       min-width: 0;
     }
 
-    thead { background: #f3f4f6; }
-
     th, td {
-      padding: 7px 9px;
+      padding: 6px 8px;
       text-align: left;
       border-bottom: 1px solid #e5e7eb;
       vertical-align: top;
+    }
+
+    thead {
+      background: #f3f4f6;
     }
 
     th {
@@ -243,7 +246,7 @@
     tbody tr:hover { background: #eef2ff; }
 
     .description-cell {
-      max-width: 260px;
+      max-width: 220px;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -251,13 +254,10 @@
     .empty-state {
       padding: 10px 0;
       text-align: center;
-      font-size: 13px;
+      font-size: 12px;
       color: #9ca3af;
     }
 
-    .stack { display: grid; gap: 8px; }
-
-    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -326,230 +326,213 @@
       margin-top: 10px;
     }
 
-    /* Tablet */
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .card { padding: 20px; }
-    }
-
-    /* Handy */
     @media (max-width: 640px) {
-      .page { margin: 0; padding: 0; }
+      .page { padding: 6px; }
       .card {
         border-radius: 0;
+        margin: 0;
         box-shadow: none;
-        padding: 16px 12px 24px;
-        min-height: 100vh;
       }
-      h1 { font-size: 20px; }
-      h2 { font-size: 16px; }
-      .layout { grid-template-columns: 1fr; }
-      form.row { grid-template-columns: 1fr; }
-      .btn-primary, .btn-secondary {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
       }
-      table { width: 100%; font-size: 12px; }
-      th, td { padding: 6px 6px; }
+      .user-badge {
+        text-align: left;
+      }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <!-- Login -->
+    <!-- LOGIN VIEW -->
     <div id="login-view" class="card">
       <h1>Interne Zeiterfassung – Login</h1>
       <p class="subtitle">
-        Supabase-Version mit zentraler Datenbank. Admin, Objektleitung und Mitarbeiter werden serverseitig gespeichert.
+        Bitte mit Mitarbeiter-Zugangsdaten anmelden.
       </p>
-      
+      <div class="hint">
+        Hinweis für Setup: Beim ersten Start wird automatisch ein Admin angelegt:<br>
+        Benutzername: <code>admin</code> – Passwort: <code>admin123</code>
+      </div>
 
       <form id="login-form" class="login-form">
         <div>
           <label for="login-username">Benutzername</label>
-          <input id="login-username" type="text" autocomplete="username" required>
+          <input id="login-username" type="text" autocomplete="username" required />
         </div>
         <div>
           <label for="login-password">Passwort</label>
-          <input id="login-password" type="password" autocomplete="current-password" required>
+          <input id="login-password" type="password" autocomplete="current-password" required />
         </div>
-        <div>
-          <button type="submit" class="btn-primary">Einloggen</button>
-        </div>
+        <button type="submit" class="btn-primary">Einloggen</button>
       </form>
     </div>
 
-    <!-- App -->
-    <div id="app-view" class="card" style="display:none">
+    <!-- APP VIEW -->
+    <div id="app-view" class="card" style="display:none;">
       <div class="app-header">
         <div>
           <h1>Interne Zeiterfassung</h1>
           <p class="subtitle">
-            Zentrale Zeiterfassung mit Supabase. Rollen: Admin, Objektleitung, Mitarbeiter.
+            Einfache Stempeluhr mit Objekten, Rollen und zentraler Datenbank.
           </p>
         </div>
-        <div class="stack" style="align-items:flex-end;">
-          <div class="user-badge">
-            Eingeloggt als <strong id="current-username"></strong>
-            <span id="current-role-pill" class="pill"></span>
+        <div class="user-badge">
+          Eingeloggt als <strong id="current-username"></strong>
+          <span id="current-role-pill" class="pill"></span><br />
+          <button id="logout-btn" class="btn-secondary" type="button">Logout</button>
+        </div>
+      </div>
+
+      <!-- STEMPELUHR -->
+      <section class="section" id="stamp-section">
+        <h2>Stempeluhr</h2>
+        <div id="stamp-status" class="hint" style="margin-bottom: 8px;">
+          Du bist aktuell nicht eingestempelt.
+        </div>
+        <div class="stack">
+          <div>
+            <label for="stamp-object">Objekt</label>
+            <select id="stamp-object"></select>
           </div>
-          <button id="logout-btn" class="btn-secondary">Logout</button>
+          <div>
+            <label for="stamp-description">Beschreibung (optional)</label>
+            <input id="stamp-description" type="text" placeholder="z.B. Tätigkeit" />
+          </div>
+          <div class="stamp-buttons">
+            <button type="button" id="stamp-button" class="btn-primary">
+              Einstempeln
+            </button>
+            <button type="button" id="stamp-stop-button" class="btn-secondary">
+              Ausstempeln
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="layout">
-        <!-- Links: Buchungen -->
-        <div>
-          
-          <section class="section">
-            <h2>Stempeluhr</h2>
-            <div id="stamp-status" class="hint" style="margin-bottom: 10px;">
-              Du bist aktuell nicht eingestempelt.
-            </div>
-            <form id="stamp-form" class="stack">
-              <div>
-                <label for="stamp-object">Objekt</label>
-                <select id="stamp-object"></select>
-              </div>
-              <div>
-                <label for="stamp-description">Beschreibung (optional)</label>
-                <input id="stamp-description" type="text" placeholder="z.B. Tätigkeit">
-              </div>
-              <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button type="button" id="stamp-button" class="btn-primary" style="flex:1 1 120px;">
-                  Einstempeln
-                </button>
-                <button type="button" id="stamp-stop-button" class="btn-secondary" style="flex:1 1 120px;" disabled>
-                  Ausstempeln
-                </button>
-              </div>
-            </form>
-          </section>
-
-
-          <section class="section" id="entries-section">
-            <div class="entries-header">
-              <div>
-                <strong id="entries-title">Erfasste Zeiten</strong>
-                <span id="entries-subtitle" style="font-size:12px;"></span>
-              </div>
-              <div>
-                Summe: <strong id="total-hours">0h 00m</strong>
-              </div>
-            </div>
-
-            <div class="filters-row">
-              <div>
-                <label for="filter-object">Objekt</label>
-                <select id="filter-object">
-                  <option value="all">Alle</option>
-                </select>
-              </div>
-              <div>
-                <label for="filter-user">Mitarbeiter</label>
-                <select id="filter-user">
-                  <option value="all">Alle</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Datum</th>
-                    <th>Start</th>
-                    <th>Ende</th>
-                    <th>Dauer</th>
-                    <th>Objekt</th>
-                    <th>Beschreibung</th>
-                    <th id="th-user" style="display:none">Benutzer</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="entries-body"></tbody>
-              </table>
-            </div>
-            <div id="empty-state" class="empty-state">Noch keine Einträge.</div>
-          </section>
+      <!-- BUCHUNGSLISTE -->
+      <section class="section" id="entries-section">
+        <div class="entries-header">
+          <div>
+            <strong>Erfasste Zeiten</strong>
+            <span id="entries-subtitle" style="font-size:11px;color:#6b7280;"></span>
+          </div>
+          <div>
+            Summe: <strong id="total-hours">0h 00m</strong>
+          </div>
         </div>
 
-        <!-- Rechts: Objekte / Benutzer -->
-        <div>
-          <section class="section admin-only" id="objects-section">
-            <h2>Objekte</h2>
-            <form id="object-form" class="row" style="margin-bottom:10px;">
-              <div>
-                <label for="object-name">Neues Objekt</label>
-                <input id="object-name" type="text" placeholder="z.B. Baustelle A">
-              </div>
-              <div>
-                <button type="submit" class="btn-secondary">Objekt hinzufügen</button>
-              </div>
-            </form>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="objects-body"></tbody>
-              </table>
-            </div>
-            <div id="objects-empty" class="empty-state">Noch keine Objekte.</div>
-          </section>
-
-          <section class="section admin-only" id="users-section">
-            <h2>Benutzer</h2>
-            <div class="hint">
-              Admin kann pro Benutzer definieren, auf welchen Objekten er buchen darf.
-              Objektleitung sieht alle Buchungen ihrer Objekte.
-            </div>
-            <form id="user-form" class="row" style="margin-bottom:10px;">
-              <div>
-                <label for="user-username">Benutzername</label>
-                <input id="user-username" type="text" placeholder="z.B. max">
-              </div>
-              <div>
-                <label for="user-password">Passwort</label>
-                <input id="user-password" type="password">
-              </div>
-              <div>
-                <label for="user-role">Rolle</label>
-                <select id="user-role">
-                  <option value="user">Mitarbeiter</option>
-                  <option value="lead">Objektleitung</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div>
-                <button type="submit" class="btn-secondary">Benutzer anlegen</button>
-              </div>
-            </form>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Benutzername</th>
-                    <th>Rolle</th>
-                    <th>Objekte</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="users-body"></tbody>
-              </table>
-            </div>
-            <div id="users-empty" class="empty-state">Noch keine Benutzer.</div>
-          </section>
+        <div class="filters-row">
+          <div>
+            <label for="filter-object">Objekt</label>
+            <select id="filter-object">
+              <option value="all">Alle</option>
+            </select>
+          </div>
+          <div>
+            <label for="filter-user">Mitarbeiter</label>
+            <select id="filter-user">
+              <option value="all">Alle</option>
+            </select>
+          </div>
         </div>
-      </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Datum</th>
+                <th>Start</th>
+                <th>Ende</th>
+                <th>Dauer</th>
+                <th>Objekt</th>
+                <th>Beschreibung</th>
+                <th id="th-user">Benutzer</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="entries-body"></tbody>
+          </table>
+        </div>
+        <div id="entries-empty" class="empty-state">Noch keine Einträge.</div>
+      </section>
+
+      <!-- OBJEKTE (ADMIN) -->
+      <section class="section admin-only" id="objects-section">
+        <h2>Objekte</h2>
+        <div class="hint">
+          Hier legst du alle Objekte/Projekte an, auf die Mitarbeiter buchen können.
+        </div>
+        <form id="object-form" class="stack" style="margin-top:8px;">
+          <div>
+            <label for="object-name">Neues Objekt</label>
+            <input id="object-name" type="text" placeholder="z.B. Baustelle A" />
+          </div>
+          <div>
+            <button type="submit" class="btn-secondary" style="width:100%;">Objekt hinzufügen</button>
+          </div>
+        </form>
+        <div class="table-container" style="margin-top:8px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="objects-body"></tbody>
+          </table>
+        </div>
+        <div id="objects-empty" class="empty-state">Noch keine Objekte.</div>
+      </section>
+
+      <!-- BENUTZER (ADMIN) -->
+      <section class="section admin-only" id="users-section">
+        <h2>Benutzer</h2>
+        <div class="hint">
+          Admin kann hier Mitarbeiter und Objektleitungen anlegen und ihnen Objekte zuweisen.
+        </div>
+        <form id="user-form" class="stack" style="margin-top:8px;">
+          <div>
+            <label for="user-username">Benutzername</label>
+            <input id="user-username" type="text" placeholder="z.B. max" />
+          </div>
+          <div>
+            <label for="user-password">Passwort</label>
+            <input id="user-password" type="password" />
+          </div>
+          <div>
+            <label for="user-role">Rolle</label>
+            <select id="user-role">
+              <option value="user">Mitarbeiter</option>
+              <option value="lead">Objektleitung</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div>
+            <button type="submit" class="btn-secondary" style="width:100%;">Benutzer anlegen</button>
+          </div>
+        </form>
+        <div class="table-container" style="margin-top:8px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Benutzername</th>
+                <th>Rolle</th>
+                <th>Objekte</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+        <div id="users-empty" class="empty-state">Noch keine Benutzer.</div>
+      </section>
     </div>
   </div>
 
-  <!-- Modal Objekte zuweisen -->
+  <!-- MODAL: OBJEKTE ZUWEISEN -->
   <div id="object-modal-backdrop" class="modal-backdrop">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-header">
@@ -561,7 +544,7 @@
       <div class="modal-body">
         <div>
           <label for="object-modal-search">Objekte suchen</label>
-          <input id="object-modal-search" type="text" placeholder="Name / Teil vom Namen">
+          <input id="object-modal-search" type="text" placeholder="Name / Teil vom Namen" />
         </div>
         <div id="object-modal-list" class="modal-list"></div>
       </div>
@@ -572,999 +555,7 @@
     </div>
   </div>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // HIER DEINE SUPABASE-DATEN EINTRAGEN
-    const SUPABASE_URL = "https://mgxrmoqpbbnahtijyjci.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_fS_r7bbCuYcOJKn3DNF0Nw_KqVEVftw";
-
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const STORAGE_KEY_CURRENT_USER = "timeApp_currentUser_v1";
-
-    let users = [];
-    let objects = [];
-    let entries = [];
-    let currentUser = null;
-    let objectModalUserId = null;
-    let entryFilterObjectId = "all";
-    let entryFilterUserId = "all";
-
-    const STORAGE_KEY_ACTIVE_STAMPS = "timeApp_activeStamps_v1";
-    let activeStamps = {};
-
-    function loadActiveStamps() {
-      const saved = loadFromStorage(STORAGE_KEY_ACTIVE_STAMPS, {});
-      if (saved && typeof saved === "object") {
-        activeStamps = saved;
-      } else {
-        activeStamps = {};
-      }
-    }
-
-    function saveActiveStamps() {
-      saveToStorage(STORAGE_KEY_ACTIVE_STAMPS, activeStamps);
-    }
-
-    function getCurrentUserStamp() {
-      if (!currentUser) return null;
-      return activeStamps[String(currentUser.id)] || null;
-    }
-
-    function setCurrentUserStamp(stamp) {
-      if (!currentUser) return;
-      const key = String(currentUser.id);
-      if (stamp) {
-        activeStamps[key] = stamp;
-      } else {
-        delete activeStamps[key];
-      }
-      saveActiveStamps();
-    }
-
-
-    function loadFromStorage(key, fallback) {
-      try {
-        const raw = localStorage.getItem(key);
-        if (!raw) return fallback;
-        const parsed = JSON.parse(raw);
-        return parsed ?? fallback;
-      } catch (e) {
-        return fallback;
-      }
-    }
-    function saveToStorage(key, value) {
-      try {
-        localStorage.setItem(key, JSON.stringify(value));
-      } catch (e) {
-        console.error("localStorage Fehler:", e);
-      }
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function calcDurationMinutes(start, end) {
-      const [sh, sm] = start.split(":").map(Number);
-      const [eh, em] = end.split(":").map(Number);
-      return (eh * 60 + em) - (sh * 60 + sm);
-    }
-    function formatDuration(min) {
-      const m = Number(min) || 0;
-      const h = Math.floor(m / 60);
-      const r = m % 60;
-      return h + "h " + String(r).padStart(2, "0") + "m";
-    }
-
-    function mapUserRow(row) {
-      return {
-        ...row,
-        allowedObjectIds: Array.isArray(row.allowed_object_ids)
-          ? row.allowed_object_ids
-          : []
-      };
-    }
-
-    function mapEntryRow(row) {
-      return {
-        id: row.id,
-        userId: row.user_id,
-        objectId: row.object_id,
-        date: row.date,
-        start: row.start ? String(row.start).slice(0, 5) : "",
-        end: row.end ? String(row.end).slice(0, 5) : "",
-        durationMinutes: row.duration_minutes ?? 0,
-        description: row.description || ""
-      };
-    }
-
-    async function ensureDefaultAdmin() {
-      try {
-        const { data, error } = await supabaseClient
-          .from("users")
-          .select("id")
-          .eq("username", "admin")
-          .limit(1);
-        if (error) {
-          console.error("Admin-Prüfung Fehler:", error);
-          return;
-        }
-        if (!data || data.length === 0) {
-          const { error: insError } = await supabaseClient
-            .from("users")
-            .insert([{ username: "admin", password: "admin123", role: "admin", allowed_object_ids: [] }]);
-          if (insError) console.error("Admin-Anlage Fehler:", insError);
-        }
-      } catch (e) {
-        console.error("ensureDefaultAdmin Fehler:", e);
-      }
-    }
-
-    async function loadAllData() {
-      try {
-        const { data: usersData, error: usersError } =
-          await supabaseClient.from("users").select("*");
-        if (usersError) {
-          console.error("Benutzer laden Fehler:", usersError);
-          alert("Fehler beim Laden der Benutzer.");
-          return false;
-        }
-        const { data: objectsData, error: objectsError } =
-          await supabaseClient.from("objects").select("*");
-        if (objectsError) {
-          console.error("Objekte laden Fehler:", objectsError);
-          alert("Fehler beim Laden der Objekte.");
-          return false;
-        }
-        const { data: entriesData, error: entriesError } =
-          await supabaseClient.from("entries").select("*");
-        if (entriesError) {
-          console.error("Buchungen laden Fehler:", entriesError);
-          alert("Fehler beim Laden der Buchungen.");
-          return false;
-        }
-
-        users = (usersData || []).map(mapUserRow);
-        objects = objectsData || [];
-        entries = (entriesData || []).map(mapEntryRow);
-        return true;
-      } catch (e) {
-        console.error("loadAllData Fehler:", e);
-        alert("Unbekannter Fehler beim Laden der Daten.");
-        return false;
-      }
-    }
-
-    function getAllowedObjectsForCurrentUser() {
-      if (!currentUser) return [];
-      if (currentUser.role === "admin") return objects;
-      const u = users.find(u => u.id === currentUser.id);
-      if (!u) return [];
-      const ids = Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
-      return objects.filter(o => ids.includes(o.id));
-    }
-
-    
-    function renderObjectsSelect() {
-      const select = document.getElementById("stamp-object");
-      if (!select) return;
-      select.innerHTML = "";
-      if (!currentUser) {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "Nicht eingeloggt";
-        select.appendChild(opt);
-        select.disabled = true;
-        return;
-      }
-
-      const allowed = getAllowedObjectsForCurrentUser();
-      if (!allowed.length) {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = currentUser.role === "admin"
-          ? "Keine Objekte vorhanden"
-          : "Keine Objekte zugewiesen";
-        select.appendChild(opt);
-        select.disabled = true;
-        return;
-      }
-
-      const activeStamp = getCurrentUserStamp();
-      select.disabled = !!activeStamp;
-
-      allowed.forEach(o => {
-        const opt = document.createElement("option");
-        opt.value = String(o.id);
-        opt.textContent = o.name;
-        select.appendChild(opt);
-      });
-
-      if (activeStamp) {
-        select.value = String(activeStamp.objectId);
-      }
-    }
-
-    function renderObjectsTable() {
-      const tbody = document.getElementById("objects-body");
-      const empty = document.getElementById("objects-empty");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      if (!objects.length) {
-        if (empty) empty.style.display = "block";
-        return;
-      }
-      if (empty) empty.style.display = "none";
-
-      for (const obj of objects) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${escapeHtml(obj.name)}</td>
-          <td><button type="button" class="btn-danger" data-id="${obj.id}">Löschen</button></td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      tbody.querySelectorAll("button[data-id]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = Number(btn.getAttribute("data-id"));
-          const index = objects.findIndex(o => o.id === id);
-          if (index === -1) return;
-          const obj = objects[index];
-          const ok = confirm(`Objekt "${obj.name}" wirklich löschen? Alle zugehörigen Buchungen werden gelöscht.`);
-          if (!ok) return;
-
-          try {
-            const { error: entriesError } = await supabaseClient
-              .from("entries")
-              .delete()
-              .eq("object_id", id);
-            if (entriesError) {
-              console.error("Buchungen löschen Fehler:", entriesError);
-              alert("Buchungen für dieses Objekt konnten nicht gelöscht werden.");
-              return;
-            }
-            const { error: objError } = await supabaseClient
-              .from("objects")
-              .delete()
-              .eq("id", id);
-            if (objError) {
-              console.error("Objekt löschen Fehler:", objError);
-              alert("Objekt konnte nicht gelöscht werden.");
-              return;
-            }
-            objects.splice(index, 1);
-            entries = entries.filter(e => e.objectId !== id);
-            renderObjectsTable();
-            renderObjectsSelect();
-            renderUsersTable();
-            renderEntries();
-          } catch (e) {
-            console.error("Objekt löschen Fehler:", e);
-            alert("Unbekannter Fehler beim Löschen des Objekts.");
-          }
-        });
-      });
-    }
-
-    function renderUsersTable() {
-      const tbody = document.getElementById("users-body");
-      const empty = document.getElementById("users-empty");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      if (!users.length) {
-        if (empty) empty.style.display = "block";
-        return;
-      }
-      if (empty) empty.style.display = "none";
-
-      for (const user of users) {
-        const tr = document.createElement("tr");
-        let roleLabel, badgeClass;
-        if (user.role === "admin") {
-          roleLabel = "Admin"; badgeClass = "badge-admin";
-        } else if (user.role === "lead") {
-          roleLabel = "Objektleitung"; badgeClass = "badge-lead";
-        } else {
-          roleLabel = "Mitarbeiter"; badgeClass = "badge-user";
-        }
-
-        const ids = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
-        let objectsLabel = "";
-        if (user.role === "admin") {
-          objectsLabel = "alle";
-        } else if (!objects.length) {
-          objectsLabel = "-";
-        } else if (!ids.length) {
-          objectsLabel = "keine";
-        } else {
-          const names = objects.filter(o => ids.includes(o.id)).map(o => o.name);
-          if (!names.length) objectsLabel = "keine";
-          else if (names.length <= 2) objectsLabel = names.join(", ");
-          else objectsLabel = names.slice(0,2).join(", ") + ` (+${names.length-2})`;
-        }
-
-        tr.innerHTML = `
-          <td>${escapeHtml(user.username)}</td>
-          <td><span class="badge ${badgeClass}">${roleLabel}</span></td>
-          <td>
-            ${escapeHtml(objectsLabel || "")}
-            ${objects.length && user.role !== "admin"
-              ? '<button type="button" class="btn-secondary small-btn" data-edit-objects="' + user.id + '">Objekte</button>'
-              : ""}
-          </td>
-          <td>${user.username === "admin" ? "" : '<button type="button" class="btn-danger" data-id="' + user.id + '">Löschen</button>'}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      tbody.querySelectorAll("button.btn-danger[data-id]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = Number(btn.getAttribute("data-id"));
-          const u = users.find(u => u.id === id);
-          if (!u) return;
-          if (currentUser && currentUser.id === id) {
-            alert("Dich selbst löschen bringt wenig.");
-            return;
-          }
-          const ok = confirm(`Benutzer "${u.username}" wirklich löschen? Alle Buchungen werden entfernt.`);
-          if (!ok) return;
-          try {
-            const { error } = await supabaseClient
-              .from("users")
-              .delete()
-              .eq("id", id);
-            if (error) {
-              console.error("Benutzer löschen Fehler:", error);
-              alert("Benutzer konnte nicht gelöscht werden.");
-              return;
-            }
-            users = users.filter(us => us.id !== id);
-            entries = entries.filter(e => e.userId !== id);
-            renderUsersTable();
-            renderEntries();
-          } catch (e) {
-            console.error("Benutzer löschen Fehler:", e);
-            alert("Unbekannter Fehler beim Löschen des Benutzers.");
-          }
-        });
-      });
-
-      tbody.querySelectorAll("button[data-edit-objects]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const id = Number(btn.getAttribute("data-edit-objects"));
-          openObjectModal(id);
-        });
-      });
-    }
-
-    function openObjectModal(userId) {
-      const user = users.find(u => u.id === userId);
-      if (!user) return;
-      if (!objects.length) {
-        alert("Es gibt noch keine Objekte.");
-        return;
-      }
-      objectModalUserId = userId;
-      const backdrop = document.getElementById("object-modal-backdrop");
-      const nameEl = document.getElementById("object-modal-username");
-      const search = document.getElementById("object-modal-search");
-      if (nameEl) nameEl.textContent = user.username;
-      if (search) search.value = "";
-      renderObjectModalList();
-      if (backdrop) backdrop.style.display = "flex";
-    }
-
-    function closeObjectModal() {
-      const backdrop = document.getElementById("object-modal-backdrop");
-      objectModalUserId = null;
-      if (backdrop) backdrop.style.display = "none";
-    }
-
-    function renderObjectModalList() {
-      const listEl = document.getElementById("object-modal-list");
-      const searchInput = document.getElementById("object-modal-search");
-      if (!listEl) return;
-      listEl.innerHTML = "";
-      if (!objects.length) {
-        const empty = document.createElement("div");
-        empty.className = "modal-list-empty";
-        empty.textContent = "Keine Objekte vorhanden.";
-        listEl.appendChild(empty);
-        return;
-      }
-      const user = users.find(u => u.id === objectModalUserId);
-      if (!user) return;
-      const allowed = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
-      const term = (searchInput && searchInput.value || "").toLowerCase().trim();
-      const filtered = objects.filter(o =>
-        !term || String(o.name || "").toLowerCase().includes(term)
-      );
-      if (!filtered.length) {
-        const empty = document.createElement("div");
-        empty.className = "modal-list-empty";
-        empty.textContent = "Keine Treffer.";
-        listEl.appendChild(empty);
-        return;
-      }
-      for (const obj of filtered) {
-        const label = document.createElement("label");
-        label.className = "modal-list-item";
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.value = String(obj.id);
-        cb.checked = allowed.includes(obj.id);
-        const span = document.createElement("span");
-        span.textContent = obj.name;
-        label.appendChild(cb);
-        label.appendChild(span);
-        listEl.appendChild(label);
-      }
-    }
-
-    function renderEntries() {
-      const tbody = document.getElementById("entries-body");
-      const empty = document.getElementById("empty-state");
-      const totalEl = document.getElementById("total-hours");
-      const thUser = document.getElementById("th-user");
-      const subtitleEl = document.getElementById("entries-subtitle");
-      const filterObjectSelect = document.getElementById("filter-object");
-      const filterUserSelect = document.getElementById("filter-user");
-
-      if (!tbody) return;
-      tbody.innerHTML = "";
-
-      let baseEntries = entries;
-      if (!currentUser) baseEntries = [];
-      else if (currentUser.role === "admin") baseEntries = entries;
-      else if (currentUser.role === "lead") {
-        const u = users.find(us => us.id === currentUser.id);
-        const ids = u && Array.isArray(u.allowedObjectIds) ? u.allowedObjectIds : [];
-        baseEntries = entries.filter(e => !e.objectId || ids.includes(e.objectId));
-      } else {
-        baseEntries = entries.filter(e => e.userId === currentUser.id);
-      }
-
-      if (currentUser && (currentUser.role === "admin" || currentUser.role === "lead")) {
-        if (thUser) thUser.style.display = "";
-        if (subtitleEl)
-          subtitleEl.textContent = currentUser.role === "admin"
-            ? " – alle Benutzer"
-            : " – eigene Objekte";
-      } else {
-        if (thUser) thUser.style.display = "none";
-        if (subtitleEl) subtitleEl.textContent = "";
-      }
-
-      if (!baseEntries.length) {
-        if (empty) empty.style.display = "block";
-        if (totalEl) totalEl.textContent = "0h 00m";
-        if (filterObjectSelect) filterObjectSelect.innerHTML = '<option value="all">Alle</option>';
-        if (filterUserSelect) filterUserSelect.innerHTML = '<option value="all">Alle</option>';
-        return;
-      } else {
-        if (empty) empty.style.display = "none";
-      }
-
-      const objectsById = {};
-      for (const o of objects) objectsById[o.id] = o;
-      const usersById = {};
-      for (const u of users) usersById[u.id] = u;
-
-      const objectIdsInEntries = new Set();
-      const userIdsInEntries = new Set();
-      for (const e of baseEntries) {
-        if (e.objectId) objectIdsInEntries.add(e.objectId);
-        if (e.userId) userIdsInEntries.add(e.userId);
-      }
-
-      if (filterObjectSelect) {
-        const prev = entryFilterObjectId;
-        filterObjectSelect.innerHTML = '<option value="all">Alle</option>';
-        objectIdsInEntries.forEach(id => {
-          const obj = objectsById[id];
-          if (!obj) return;
-          const opt = document.createElement("option");
-          opt.value = String(id);
-          opt.textContent = obj.name;
-          filterObjectSelect.appendChild(opt);
-        });
-        if (prev && [...filterObjectSelect.options].some(o => o.value === prev)) {
-          filterObjectSelect.value = prev;
-        } else {
-          filterObjectSelect.value = "all";
-          entryFilterObjectId = "all";
-        }
-      }
-
-      if (filterUserSelect) {
-        const prev = entryFilterUserId;
-        filterUserSelect.innerHTML = '<option value="all">Alle</option>';
-        userIdsInEntries.forEach(id => {
-          const usr = usersById[id];
-          if (!usr) return;
-          const opt = document.createElement("option");
-          opt.value = String(id);
-          opt.textContent = usr.username;
-          filterUserSelect.appendChild(opt);
-        });
-        if (prev && [...filterUserSelect.options].some(o => o.value === prev)) {
-          filterUserSelect.value = prev;
-        } else {
-          filterUserSelect.value = "all";
-          entryFilterUserId = "all";
-        }
-      }
-
-      const relevant = baseEntries.filter(e => {
-        if (entryFilterObjectId !== "all" && String(e.objectId || "") !== entryFilterObjectId)
-          return false;
-        if (entryFilterUserId !== "all" && String(e.userId) !== entryFilterUserId)
-          return false;
-        return true;
-      });
-
-      if (!relevant.length) {
-        if (empty) empty.style.display = "block";
-        if (totalEl) totalEl.textContent = "0h 00m";
-        return;
-      } else {
-        if (empty) empty.style.display = "none";
-      }
-
-      let totalMinutes = 0;
-      const sorted = [...relevant].sort((a,b) => (a.date + " " + a.start).localeCompare(b.date + " " + b.start));
-
-      for (const entry of sorted) {
-        totalMinutes += entry.durationMinutes;
-        const obj = entry.objectId ? objectsById[entry.objectId] : null;
-        const objectName = obj ? obj.name : "";
-        const user = usersById[entry.userId];
-        const username = user ? user.username : "?";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${escapeHtml(entry.date)}</td>
-          <td>${escapeHtml(entry.start)}</td>
-          <td>${escapeHtml(entry.end)}</td>
-          <td><span class="pill">${formatDuration(entry.durationMinutes)}</span></td>
-          <td>${escapeHtml(objectName)}</td>
-          <td class="description-cell">${escapeHtml(entry.description)}</td>
-          ${currentUser && (currentUser.role === "admin" || currentUser.role === "lead")
-            ? '<td>' + escapeHtml(username) + '</td>'
-            : '<td style="display:none"></td>'}
-          <td><button type="button" class="btn-danger" data-id="${entry.id}">✕</button></td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      if (totalEl) totalEl.textContent = formatDuration(totalMinutes);
-
-      tbody.querySelectorAll("button.btn-danger[data-id]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = Number(btn.getAttribute("data-id"));
-          const idx = entries.findIndex(e => e.id === id);
-          if (idx === -1) return;
-          const ok = confirm("Buchung wirklich löschen?");
-          if (!ok) return;
-          try {
-            const { error } = await supabaseClient
-              .from("entries")
-              .delete()
-              .eq("id", id);
-            if (error) {
-              console.error("Buchung löschen Fehler:", error);
-              alert("Buchung konnte nicht gelöscht werden.");
-              return;
-            }
-            entries.splice(idx, 1);
-            renderEntries();
-          } catch (e) {
-            console.error("Buchung löschen Fehler:", e);
-            alert("Unbekannter Fehler beim Löschen der Buchung.");
-          }
-        });
-      });
-    }
-
-    
-function updateStampUI() {
-      const statusEl = document.getElementById("stamp-status");
-      const objectSelect = document.getElementById("stamp-object");
-      const descInput = document.getElementById("stamp-description");
-      const stampButton = document.getElementById("stamp-button");
-      const stampStopButton = document.getElementById("stamp-stop-button");
-
-      if (!statusEl || !objectSelect || !stampButton || !stampStopButton) return;
-
-      if (!currentUser) {
-        statusEl.textContent = "Bitte einloggen, um zu stempeln.";
-        objectSelect.disabled = true;
-        if (descInput) descInput.disabled = true;
-        stampButton.disabled = true;
-        stampStopButton.disabled = true;
-        stampButton.style.display = "none";
-        stampStopButton.style.display = "none";
-        return;
-      }
-
-      const stamp = getCurrentUserStamp();
-      if (!stamp) {
-        statusEl.textContent = "Du bist aktuell nicht eingestempelt.";
-        objectSelect.disabled = false;
-        if (descInput) {
-          descInput.disabled = false;
-          descInput.value = "";
-        }
-        stampButton.disabled = false;
-        stampStopButton.disabled = true;
-        stampButton.style.display = "inline-flex";
-        stampStopButton.style.display = "none";
-      } else {
-        const obj = objects.find(o => o.id === stamp.objectId);
-        const objName = obj ? obj.name : "(Objekt)";
-        statusEl.textContent =
-          "Eingestempelt seit " + stamp.start + " Uhr am " + stamp.date + " bei \"" + objName + "\".";
-        objectSelect.disabled = true;
-        if (descInput) {
-          descInput.disabled = true;
-          descInput.value = stamp.description || "";
-        }
-        const val = String(stamp.objectId);
-        if ([...objectSelect.options].some(o => o.value === val)) {
-          objectSelect.value = val;
-        }
-        stampButton.disabled = true;
-        stampStopButton.disabled = false;
-        stampButton.style.display = "none";
-        stampStopButton.style.display = "inline-flex";
-      }
-    }
-
-async function handleStampIn() {
-      if (!currentUser) {
-        alert("Nicht eingeloggt.");
-        return;
-      }
-      if (getCurrentUserStamp()) {
-        alert("Du bist bereits eingestempelt.");
-        return;
-      }
-      const objectSelect = document.getElementById("stamp-object");
-      const descInput = document.getElementById("stamp-description");
-      const objectId = objectSelect && objectSelect.value ? Number(objectSelect.value) : null;
-      const description = descInput ? descInput.value.trim() : "";
-
-      const allowed = getAllowedObjectsForCurrentUser();
-      if (currentUser.role !== "admin" && (!allowed || !allowed.length)) {
-        alert("Dir sind keine Objekte zugewiesen. Bitte Admin fragen.");
-        return;
-      }
-      if (!objectId) {
-        alert("Bitte ein Objekt auswählen.");
-        return;
-      }
-
-      const now = new Date();
-      const date = now.toISOString().slice(0,10);
-      const time = now.toTimeString().slice(0,5);
-
-      setCurrentUserStamp({
-        date,
-        start: time,
-        objectId,
-        description
-      });
-      updateStampUI();
-    }
-
-    async function handleStampOut() {
-      if (!currentUser) {
-        alert("Nicht eingeloggt.");
-        return;
-      }
-      const stamp = getCurrentUserStamp();
-      if (!stamp) {
-        alert("Du bist nicht eingestempelt.");
-        return;
-      }
-
-      const now = new Date();
-      let endTime = now.toTimeString().slice(0,5);
-      let minutes = calcDurationMinutes(stamp.start, endTime);
-      if (minutes <= 0) {
-        minutes = 1;
-      }
-
-      try {
-        const { data, error } = await supabaseClient
-          .from("entries")
-          .insert([{
-            user_id: currentUser.id,
-            object_id: stamp.objectId,
-            date: stamp.date,
-            start: stamp.start,
-            end: endTime,
-            duration_minutes: minutes,
-            description: stamp.description || ""
-          }])
-          .select();
-        if (error) {
-          console.error("Buchung speichern Fehler:", error);
-          alert("Buchung konnte nicht gespeichert werden.");
-          return;
-        }
-        const inserted = Array.isArray(data) && data.length ? data[0] : null;
-        if (inserted) {
-          entries.push(mapEntryRow(inserted));
-          renderEntries();
-        }
-        setCurrentUserStamp(null);
-        updateStampUI();
-      } catch (e2) {
-        console.error("Buchung speichern Fehler:", e2);
-        alert("Unbekannter Fehler beim Speichern der Buchung.");
-      }
-    }
-
-    
-function updateCurrentUserUI() {
-      const nameEl = document.getElementById("current-username");
-      const rolePill = document.getElementById("current-role-pill");
-      const adminSections = document.querySelectorAll(".admin-only");
-      const entriesSection = document.getElementById("entries-section");
-
-      if (!currentUser) return;
-
-      if (nameEl) nameEl.textContent = currentUser.username;
-      if (rolePill) {
-        if (currentUser.role === "admin") rolePill.textContent = "Admin";
-        else if (currentUser.role === "lead") rolePill.textContent = "Objektleitung";
-        else rolePill.textContent = "Mitarbeiter";
-      }
-
-      adminSections.forEach(sec => {
-        sec.style.display = currentUser.role === "admin" ? "block" : "none";
-      });
-
-      if (entriesSection) {
-        // Normale Mitarbeiter sehen nur die Stempeluhr, keine Liste
-        entriesSection.style.display = currentUser.role === "user" ? "none" : "block";
-      }
-    }
-
-    function showLoginView() {
-      document.getElementById("login-view").style.display = "block";
-      document.getElementById("app-view").style.display = "none";
-    }
-    function showAppView() {
-      document.getElementById("login-view").style.display = "none";
-      document.getElementById("app-view").style.display = "block";
-      updateCurrentUserUI();
-      renderObjectsSelect();
-      renderObjectsTable();
-      renderUsersTable();
-      renderEntries();
-    }
-
-    
-document.addEventListener("DOMContentLoaded", async () => {
-      currentUser = loadFromStorage(STORAGE_KEY_CURRENT_USER, null);
-      loadActiveStamps();
-
-      await ensureDefaultAdmin();
-      const ok = await loadAllData();
-      if (!ok) {
-        showLoginView();
-        return;
-      }
-
-      if (currentUser) {
-        const stillExists = users.find(u => u.id === currentUser.id);
-        if (!stillExists) {
-          currentUser = null;
-          saveToStorage(STORAGE_KEY_CURRENT_USER, null);
-        }
-      }
-
-      if (currentUser) showAppView();
-      else showLoginView();
-
-      const loginForm = document.getElementById("login-form");
-      loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const username = document.getElementById("login-username").value.trim();
-        const password = document.getElementById("login-password").value;
-        const user = users.find(u => u.username === username && u.password === password);
-        if (!user) {
-          alert("Login fehlgeschlagen.");
-          return;
-        }
-        currentUser = { id: user.id, username: user.username, role: user.role };
-        saveToStorage(STORAGE_KEY_CURRENT_USER, currentUser);
-        showAppView();
-        updateStampUI();
-      });
-
-      const logoutBtn = document.getElementById("logout-btn");
-      logoutBtn.addEventListener("click", () => {
-        currentUser = null;
-        saveToStorage(STORAGE_KEY_CURRENT_USER, null);
-        showLoginView();
-      });
-
-      const stampButton = document.getElementById("stamp-button");
-      const stampStopButton = document.getElementById("stamp-stop-button");
-      if (stampButton) {
-        stampButton.addEventListener("click", () => {
-          handleStampIn();
-        });
-      }
-      if (stampStopButton) {
-        stampStopButton.addEventListener("click", () => {
-          handleStampOut();
-        });
-      }
-
-      const objectForm = document.getElementById("object-form");
-      objectForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const nameInput = document.getElementById("object-name");
-        const name = nameInput.value.trim();
-        if (!name) return;
-        try {
-          const { data, error } = await supabaseClient
-            .from("objects")
-            .insert([{ name }])
-            .select();
-          if (error) {
-            console.error("Objekt speichern Fehler:", error);
-            alert("Objekt konnte nicht angelegt werden.");
-            return;
-          }
-          const inserted = Array.isArray(data) && data.length ? data[0] : null;
-          if (!inserted) {
-            alert("Unerwartete Antwort beim Anlegen des Objekts.");
-            return;
-          }
-          objects.push(inserted);
-          nameInput.value = "";
-          renderObjectsTable();
-          renderObjectsSelect();
-          renderUsersTable();
-        } catch (e2) {
-          console.error("Objekt speichern Fehler:", e2);
-          alert("Unbekannter Fehler beim Anlegen des Objekts.");
-        }
-      });
-
-      const userForm = document.getElementById("user-form");
-      userForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const usernameInput = document.getElementById("user-username");
-        const passwordInput = document.getElementById("user-password");
-        const roleSelect = document.getElementById("user-role");
-
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value;
-        const role = roleSelect.value;
-
-        if (!username || !password) {
-          alert("Benutzername und Passwort sind Pflicht.");
-          return;
-        }
-        if (users.find(u => u.username === username)) {
-          alert("Benutzername existiert bereits.");
-          return;
-        }
-        try {
-          const { data, error } = await supabaseClient
-            .from("users")
-            .insert([{ username, password, role, allowed_object_ids: [] }])
-            .select();
-          if (error) {
-            console.error("Benutzer speichern Fehler:", error);
-            alert("Benutzer konnte nicht angelegt werden.");
-            return;
-          }
-          const inserted = Array.isArray(data) && data.length ? data[0] : null;
-          if (!inserted) {
-            alert("Unerwartete Antwort beim Anlegen des Benutzers.");
-            return;
-          }
-          users.push(mapUserRow(inserted));
-          usernameInput.value = "";
-          passwordInput.value = "";
-          roleSelect.value = "user";
-          renderUsersTable();
-        } catch (e2) {
-          console.error("Benutzer speichern Fehler:", e2);
-          alert("Unbekannter Fehler beim Anlegen des Benutzers.");
-        }
-      });
-
-      const modalBackdrop = document.getElementById("object-modal-backdrop");
-      const modalSearch = document.getElementById("object-modal-search");
-      const modalCloseBtn = document.getElementById("object-modal-close");
-      const modalCancelBtn = document.getElementById("object-modal-cancel");
-      const modalSaveBtn = document.getElementById("object-modal-save");
-
-      if (modalSearch) modalSearch.addEventListener("input", () => renderObjectModalList());
-      if (modalCloseBtn) modalCloseBtn.addEventListener("click", () => closeObjectModal());
-      if (modalCancelBtn) modalCancelBtn.addEventListener("click", () => closeObjectModal());
-      if (modalBackdrop) {
-        modalBackdrop.addEventListener("click", (e) => {
-          if (e.target === modalBackdrop) closeObjectModal();
-        });
-      }
-      if (modalSaveBtn) {
-        modalSaveBtn.addEventListener("click", async () => {
-          const user = users.find(u => u.id === objectModalUserId);
-          if (!user) {
-            closeObjectModal();
-            return;
-          }
-          const listEl = document.getElementById("object-modal-list");
-          if (!listEl) {
-            closeObjectModal();
-            return;
-          }
-          const cbs = listEl.querySelectorAll("input[type=\"checkbox\"]");
-          const newIds = [];
-          cbs.forEach(cb => {
-            if (cb.checked) {
-              const v = Number(cb.value);
-              if (!Number.isNaN(v)) newIds.push(v);
-            }
-          });
-          try {
-            const { error } = await supabaseClient
-              .from("users")
-              .update({ allowed_object_ids: newIds })
-              .eq("id", user.id);
-            if (error) {
-              console.error("Objekt-Zuweisung speichern Fehler:", error);
-              alert("Objekte konnten nicht gespeichert werden.");
-              return;
-            }
-            user.allowedObjectIds = newIds;
-            renderUsersTable();
-            if (currentUser && currentUser.id === user.id) {
-              renderObjectsSelect();
-              renderEntries();
-            }
-            closeObjectModal();
-          } catch (e2) {
-            console.error("Objekt-Zuweisung speichern Fehler:", e2);
-            alert("Unbekannter Fehler bei Objekt-Zuweisung.");
-          }
-        });
-      }
-
-      const filterObjectSelect = document.getElementById("filter-object");
-      const filterUserSelect = document.getElementById("filter-user");
-      if (filterObjectSelect) {
-        filterObjectSelect.addEventListener("change", () => {
-          entryFilterObjectId = filterObjectSelect.value || "all";
-          renderEntries();
-        });
-      }
-      if (filterUserSelect) {
-        filterUserSelect.addEventListener("change", () => {
-          entryFilterUserId = filterUserSelect.value || "all";
-          renderEntries();
-        });
-      }
-
-      updateStampUI();
-    });
-  </script>
+  <!-- Einstiegspunkt -->
+  <script type="module" src="./ui.js"></script>
 </body>
 </html>
