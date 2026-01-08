@@ -73,6 +73,16 @@ function renderUserBadge() {
   if (entriesSection) {
     entriesSection.style.display = isUserOnly() ? "none" : "block";
   }
+
+  // Menüeinträge je nach Rolle ein-/ausblenden
+  var entriesMenuItem = document.querySelector('[data-section-target="entries-section"]');
+  if (entriesMenuItem) {
+    entriesMenuItem.style.display = isUserOnly() ? "none" : "block";
+  }
+  var adminMenuItems = document.querySelectorAll(".menu-item-admin");
+  adminMenuItems.forEach(function (item) {
+    item.style.display = isAdmin() ? "block" : "none";
+  });
 }
 
 function renderStampSection() {
@@ -558,22 +568,16 @@ function findObjectByQrText(text) {
 function onQrDecoded(decodedText) {
   const obj = findObjectByQrText(decodedText);
   if (!obj) {
-    alert("Kein passendes Objekt für diesen QR-Code gefunden oder dir nicht zugewiesen.");
+    alert(
+      "Kein passendes Objekt für diesen QR-Code gefunden oder dir nicht zugewiesen."
+    );
     return;
   }
-
   const select = qs("stamp-object");
   if (select) {
     select.value = String(obj.id);
   }
-
-  // Status-Text aktualisieren statt Popup
-  const statusEl = qs("stamp-status");
-  if (statusEl) {
-    statusEl.textContent = 'Objekt "' + obj.name + '" wurde per QR-Code ausgewählt.';
-  }
-
-  // Scanner stoppen & Modal schließen
+  alert('Objekt "' + obj.name + '" ausgewählt.');
   closeQrModal();
 }
 
@@ -700,6 +704,8 @@ function setupEventHandlers() {
   const qrBtn = qs("qr-scan-button");
   const qrBackdrop = qs("qr-modal-backdrop");
   const qrCloseBtn = qs("qr-modal-close");
+  const menuToggle = qs("menu-toggle");
+  const menuDropdown = qs("menu-dropdown");
 
   if (loginForm) {
     loginForm.addEventListener("submit", function (e) {
@@ -880,6 +886,32 @@ function setupEventHandlers() {
   if (qrBackdrop) {
     qrBackdrop.addEventListener("click", function (e) {
       if (e.target === qrBackdrop) closeQrModal();
+    });
+  }
+
+  if (menuToggle && menuDropdown) {
+    menuToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var visible = menuDropdown.style.display === "block";
+      menuDropdown.style.display = visible ? "none" : "block";
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!menuDropdown.contains(e.target) && e.target !== menuToggle && !menuToggle.contains(e.target)) {
+        menuDropdown.style.display = "none";
+      }
+    });
+
+    var menuItems = menuDropdown.querySelectorAll("[data-section-target]");
+    menuItems.forEach(function (item) {
+      item.addEventListener("click", function () {
+        var targetId = item.getAttribute("data-section-target");
+        var target = qs(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        menuDropdown.style.display = "none";
+      });
     });
   }
 }

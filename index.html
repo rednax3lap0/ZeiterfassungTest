@@ -144,6 +144,58 @@
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 12px;
+      position: relative;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .menu-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin-right: 4px;
+    }
+    .menu-line {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: #374151;
+      margin: 1.5px 0;
+    }
+    .menu-dropdown {
+      position: absolute;
+      top: 52px;
+      right: 0;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(15,23,42,0.25);
+      padding: 6px;
+      min-width: 170px;
+      display: none;
+      z-index: 20;
+    }
+    .menu-item {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #111827;
+      display: block;
+    }
+    .menu-item:hover {
+      background: #f3f4f6;
     }
 
     .user-badge {
@@ -393,10 +445,24 @@
             Einfache Stempeluhr mit Objekten, Rollen und zentraler Datenbank.
           </p>
         </div>
-        <div class="user-badge">
-          Eingeloggt als <strong id="current-username"></strong>
-          <span id="current-role-pill" class="pill"></span><br />
-          <button id="logout-btn" class="btn-secondary" type="button">Logout</button>
+        <div class="header-right">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Menü">
+            <span class="menu-line"></span>
+            <span class="menu-line"></span>
+            <span class="menu-line"></span>
+          </button>
+          <div class="user-badge">
+            Eingeloggt als <strong id="current-username"></strong>
+            <span id="current-role-pill" class="pill"></span><br />
+            <button id="logout-btn" class="btn-secondary" type="button">Logout</button>
+          </div>
+        </div>
+        <div id="menu-dropdown" class="menu-dropdown">
+          <button type="button" class="menu-item" data-section-target="stamp-section">Stempeluhr</button>
+          <button type="button" class="menu-item" data-section-target="entries-section">Buchungen</button>
+          <button type="button" class="menu-item menu-item-admin" data-section-target="objects-section">Objekte</button>
+          <button type="button" class="menu-item menu-item-admin" data-section-target="users-section">Benutzer</button>
+          <button type="button" class="menu-item" data-section-target="info-section">Infos &amp; Dokumente</button>
         </div>
       </div>
 
@@ -553,6 +619,30 @@
           </table>
         </div>
         <div id="users-empty" class="empty-state">Noch keine Benutzer.</div>
+      </section>
+
+      <!-- INFOS & DOKUMENTE -->
+      <section class="section" id="info-section">
+        <h2>Infos &amp; Dokumente</h2>
+        <div class="hint">
+          Hier kannst du wichtige Hinweise und Links zu Dokumenten (z.B. PDFs) hinterlegen.
+          Die Inhalte bearbeitest du direkt in der <code>index.html</code>.
+        </div>
+        <div class="stack" style="margin-top:8px;">
+          <div>
+            <h3 style="margin:0 0 4px;font-size:14px;">Allgemeine Infos</h3>
+            <p style="margin:0;font-size:13px;color:#4b5563;">
+              Beispiel: Neue Mitarbeitende melden sich bitte im Büro, bevor sie die Zeiterfassung nutzen.
+            </p>
+          </div>
+          <div>
+            <h3 style="margin:10px 0 4px;font-size:14px;">Dokumente</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13px;">
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Beispiel: Datenschutz-Hinweise (PDF)</a></li>
+            </ul>
+            <div class="hint">Links hier einfach auf eure echten PDF-URLs anpassen.</div>
+          </div>
+        </div>
       </section>
     </div>
   </div>
