@@ -144,7 +144,13 @@ export function getAllowedObjectsForUser(user) {
 }
 
 export function getAllowedObjectsForCurrentUser() {
-  return getAllowedObjectsForUser(state.currentUser);
+  if (!state.currentUser) return [];
+  // Immer den vollständigen User aus state.users holen,
+  // damit allowedObjectIds aktuell sind
+  const full = state.users.find(function (u) {
+    return u.id === state.currentUser.id;
+  });
+  return getAllowedObjectsForUser(full || state.currentUser);
 }
 
 export async function initApp() {
