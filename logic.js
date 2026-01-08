@@ -32,7 +32,8 @@ function loadFromStorage(key, fallback) {
     const raw = localStorage.getItem(key);
     if (!raw) return fallback;
     const parsed = JSON.parse(raw);
-    return (parsed === undefined || parsed === null) ? fallback : parsed;
+    if (parsed === undefined || parsed === null) return fallback;
+    return parsed;
   } catch (e) {
     return fallback;
   }
@@ -59,6 +60,10 @@ function mapUser(row) {
 }
 
 function mapEntry(row) {
+  const dur =
+    row.duration_minutes === undefined || row.duration_minutes === null
+      ? 0
+      : row.duration_minutes;
   return {
     id: row.id,
     userId: row.user_id,
@@ -66,7 +71,7 @@ function mapEntry(row) {
     date: row.date,
     start: row.start ? String(row.start).slice(0, 5) : "",
     end: row.end ? String(row.end).slice(0, 5) : "",
-    durationMinutes: (row.duration_minutes === undefined || row.duration_minutes === null ? 0 : row.duration_minutes),
+    durationMinutes: dur,
     description: row.description || "",
   };
 }
@@ -101,8 +106,12 @@ function setCurrentStamp(stamp) {
 }
 
 export function calcDurationMinutes(start, end) {
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
+  const partsStart = start.split(":");
+  const partsEnd = end.split(":");
+  const sh = parseInt(partsStart[0], 10);
+  const sm = parseInt(partsStart[1], 10);
+  const eh = parseInt(partsEnd[0], 10);
+  const em = parseInt(partsEnd[1], 10);
   return eh * 60 + em - (sh * 60 + sm);
 }
 
@@ -110,7 +119,7 @@ export function formatDuration(min) {
   const m = Number(min) || 0;
   const h = Math.floor(m / 60);
   const r = m % 60;
-  return `${h}h ${String(r).padStart(2, "0")}m`;
+  return h + "h " + String(r).padStart(2, "0") + "m";
 }
 
 export function isAdmin() {
@@ -129,7 +138,9 @@ export function getAllowedObjectsForUser(user) {
   if (!user) return [];
   if (user.role === "admin") return state.objects;
   const ids = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
-  return state.objects.filter((o) => ids.includes(o.id));
+  return state.objects.filter(function (o) {
+    return ids.indexOf(o.id) !== -1;
+  });
 }
 
 export function getAllowedObjectsForCurrentUser() {
@@ -148,7 +159,9 @@ export async function initApp() {
 
   if (
     state.currentUser &&
-    !state.users.find((u) => u.id === state.currentUser.id)
+    !state.users.find(function (u) {
+      return u.id === state.currentUser.id;
+    })
   ) {
     state.currentUser = null;
     saveToStorage(STORAGE_KEY_CURRENT_USER, null);
@@ -197,7 +210,7 @@ export async function handleClockIn(objectId, description) {
   const time = now.toTimeString().slice(0, 5);
 
   setCurrentStamp({
-    date,
+    date: date,
     start: time,
     objectId: Number(objectId),
     description: description || "",
@@ -261,39 +274,49 @@ export function getEntriesViewModel() {
   if (current.role === "admin") {
     base = state.entries;
   } else if (current.role === "lead") {
-    const leadUser = state.users.find((u) => u.id === current.id);
+    const leadUser = state.users.find(function (u) {
+      return u.id === current.id;
+    });
     const ids =
       leadUser && Array.isArray(leadUser.allowedObjectIds)
         ? leadUser.allowedObjectIds
         : [];
-    base = state.entries.filter((e) => !e.objectId || ids.includes(e.objectId));
+    base = state.entries.filter(function (e) {
+      return !e.objectId || ids.indexOf(e.objectId) !== -1;
+    });
   } else {
-    base = state.entries.filter((e) => e.userId === current.id);
+    base = state.entries.filter(function (e) {
+      return e.userId === current.id;
+    });
   }
 
   const objMap = new Map();
   const userMap = new Map();
 
-  for (const e of base) {
+  base.forEach(function (e) {
     if (e.objectId) {
-      const obj = state.objects.find((o) => o.id === e.objectId);
+      const obj = state.objects.find(function (o) {
+        return o.id === e.objectId;
+      });
       if (obj) objMap.set(String(obj.id), obj.name);
     }
-    const usr = state.users.find((u) => u.id === e.userId);
+    const usr = state.users.find(function (u) {
+      return u.id === e.userId;
+    });
     if (usr) userMap.set(String(usr.id), usr.username);
-  }
+  });
 
   const objectOptions = [{ value: "all", label: "Alle" }];
-  for (const [id, name] of objMap.entries()) {
+  objMap.forEach(function (name, id) {
     objectOptions.push({ value: id, label: name });
-  }
+  });
 
   const userOptions = [{ value: "all", label: "Alle" }];
-  for (const [id, username] of userMap.entries()) {
+  userMap.forEach(function (username, id) {
     userOptions.push({ value: id, label: username });
-  }
+  });
 
-  const filtered = base.filter((e) => {
+  const filtered = base.filter(function (e) {
     if (
       state.filters.objectId !== "all" &&
       String(e.objectId || "") !== state.filters.objectId
@@ -310,13 +333,17 @@ export function getEntriesViewModel() {
   let totalMinutes = 0;
   const rows = filtered
     .slice()
-    .sort((a, b) =>
-      (a.date + " " + a.start).localeCompare(b.date + " " + b.start)
-    )
-    .map((e) => {
+    .sort(function (a, b) {
+      return (a.date + " " + a.start).localeCompare(b.date + " " + b.start);
+    })
+    .map(function (e) {
       totalMinutes += e.durationMinutes;
-      const obj = state.objects.find((o) => o.id === e.objectId);
-      const user = state.users.find((u) => u.id === e.userId);
+      const obj = state.objects.find(function (o) {
+        return o.id === e.objectId;
+      });
+      const user = state.users.find(function (u) {
+        return u.id === e.userId;
+      });
       return {
         id: e.id,
         date: e.date,
@@ -331,32 +358,40 @@ export function getEntriesViewModel() {
     });
 
   return {
-    rows,
-    totalMinutes,
-    objectOptions,
-    userOptions,
+    rows: rows,
+    totalMinutes: totalMinutes,
+    objectOptions: objectOptions,
+    userOptions: userOptions,
   };
 }
 
 export async function deleteEntry(id) {
   await apiDeleteEntry(id);
-  state.entries = state.entries.filter((e) => e.id !== id);
+  state.entries = state.entries.filter(function (e) {
+    return e.id !== id;
+  });
 }
 
-export async function createObject(name) {
-  const obj = await apiCreateObject(name);
+export async function createObject(name, code) {
+  const obj = await apiCreateObject(name, code);
   if (obj) state.objects.push(obj);
 }
 
 export async function deleteObject(id) {
   await apiDeleteObject(id);
-  state.objects = state.objects.filter((o) => o.id !== id);
-  state.entries = state.entries.filter((e) => e.objectId !== id);
-  for (const user of state.users) {
+  state.objects = state.objects.filter(function (o) {
+    return o.id !== id;
+  });
+  state.entries = state.entries.filter(function (e) {
+    return e.objectId !== id;
+  });
+  state.users.forEach(function (user) {
     if (Array.isArray(user.allowedObjectIds)) {
-      user.allowedObjectIds = user.allowedObjectIds.filter((oid) => oid !== id);
+      user.allowedObjectIds = user.allowedObjectIds.filter(function (oid) {
+        return oid !== id;
+      });
     }
-  }
+  });
 }
 
 export async function createUser(username, password, role) {
@@ -366,13 +401,19 @@ export async function createUser(username, password, role) {
 
 export async function deleteUser(id) {
   await apiDeleteUser(id);
-  state.users = state.users.filter((u) => u.id !== id);
-  state.entries = state.entries.filter((e) => e.userId !== id);
+  state.users = state.users.filter(function (u) {
+    return u.id !== id;
+  });
+  state.entries = state.entries.filter(function (e) {
+    return e.userId !== id;
+  });
 }
 
 export async function updateUserAllowedObjects(userId, objectIds) {
   await apiUpdateUserAllowedObjects(userId, objectIds);
-  const u = state.users.find((x) => x.id === userId);
+  const u = state.users.find(function (x) {
+    return x.id === userId;
+  });
   if (u) {
     u.allowedObjectIds = objectIds.slice();
   }

@@ -25,7 +25,6 @@ import {
 
 let objectModalUserId = null;
 let qrScanner = null;
-let qrScanning = false;
 
 function qs(id) {
   return document.getElementById(id);
@@ -67,7 +66,7 @@ function renderUserBadge() {
     else rolePill.textContent = "Mitarbeiter";
   }
 
-  adminSections.forEach((sec) => {
+  adminSections.forEach(function (sec) {
     sec.style.display = isAdmin() ? "block" : "none";
   });
 
@@ -76,178 +75,13 @@ function renderUserBadge() {
   }
 }
 
-
-function parseObjectIdFromQr(text) {
-  if (!text) return null;
-  var t = String(text).trim();
-  if (t.indexOf("OBJ:") === 0 || t.indexOf("obj:") === 0) {
-    var idStr = t.slice(4).trim();
-    var n = parseInt(idStr, 10);
-    return isNaN(n) ? null : n;
-  }
-  var n2 = parseInt(t, 10);
-  return isNaN(n2) ? null : n2;
-}
-
-function stopQrScanner() {
-  if (qrScanner && qrScanning) {
-    try {
-      qrScanner
-        .stop()
-        .then(function () {
-          qrScanner
-            .clear()
-            .catch(function (e) {
-              console.error("QR clear Fehler:", e);
-            });
-        })
-        .catch(function (e) {
-          console.error("QR stop Fehler:", e);
-        });
-    } catch (e) {
-      console.error("QR stop/catch Fehler:", e);
-    }
-  }
-  qrScanner = null;
-  qrScanning = false;
-}
-
-function closeQrModal() {
-  stopQrScanner();
-  var backdrop = qs("qr-modal-backdrop");
-  if (backdrop) backdrop.style.display = "none";
-}
-
-function openQrModal() {
-  if (!window.Html5Qrcode) {
-    alert("QR-Scanner-Bibliothek nicht geladen.");
-    return;
-  }
-  if (!state.currentUser) {
-    alert("Bitte zuerst einloggen.");
-    return;
-  }
-  var allowed = getAllowedObjectsForCurrentUser();
-  if (!allowed || !allowed.length) {
-    alert("Dir sind keine Objekte zugewiesen.");
-    return;
-  }
-  var backdrop = qs("qr-modal-backdrop");
-  var errorEl = qs("qr-error");
-  if (errorEl) {
-    errorEl.style.display = "none";
-    errorEl.textContent = "";
-  }
-  var readerElem = qs("qr-reader");
-  if (readerElem) {
-    readerElem.innerHTML = "";
-  }
-  if (backdrop) backdrop.style.display = "flex";
-
-  qrScanner = new Html5Qrcode("qr-reader");
-  qrScanning = true;
-
-  qrScanner
-    .start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      function (decodedText, decodedResult) {
-        if (!qrScanning) return;
-        var objectId = parseObjectIdFromQr(decodedText);
-        if (objectId === null) {
-          if (errorEl) {
-            errorEl.textContent = "QR-Code ungültig.";
-            errorEl.style.display = "block";
-          }
-          return;
-        }
-        var allowedObjs = getAllowedObjectsForCurrentUser();
-        var obj = null;
-        for (var i = 0; i < allowedObjs.length; i++) {
-          if (allowedObjs[i].id === objectId) {
-            obj = allowedObjs[i];
-            break;
-          }
-        }
-        if (!obj) {
-          if (errorEl) {
-            errorEl.textContent =
-              "Für dieses Objekt hast du keine Berechtigung.";
-            errorEl.style.display = "block";
-          }
-          return;
-        }
-        var select = qs("stamp-object");
-        if (select) {
-          var valStr = String(objectId);
-          var found = false;
-          for (var j = 0; j < select.options.length; j++) {
-            if (select.options[j].value === valStr) {
-              select.value = valStr;
-              found = true;
-              break;
-            }
-          }
-          if (!found && errorEl) {
-            errorEl.textContent =
-              "Objekt gefunden, aber nicht in der Auswahl.";
-            errorEl.style.display = "block";
-          }
-        }
-        closeQrModal();
-        renderStampSection();
-      },
-      function (errorMsg) {
-        // Scan-Fehler ignorieren (Rauschen)
-      }
-    )
-    .catch(function (e) {
-      console.error("QR-Start-Fehler:", e);
-      if (errorEl) {
-        errorEl.textContent = "Kamera konnte nicht gestartet werden.";
-        errorEl.style.display = "block";
-      }
-    });
-}
-
-function openQrCodeModal(objectId) {
-  var obj = null;
-  for (var i = 0; i < state.objects.length; i++) {
-    if (state.objects[i].id === objectId) {
-      obj = state.objects[i];
-      break;
-    }
-  }
-  if (!obj) return;
-  var backdrop = qs("qr-code-modal-backdrop");
-  var nameSpan = qs("qr-code-modal-object-name");
-  var img = qs("qr-code-image");
-  var textEl = qs("qr-code-text");
-  if (nameSpan) nameSpan.textContent = obj.name;
-  var dataStr = "OBJ:" + String(obj.id);
-  if (img) {
-    var url =
-      "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" +
-      encodeURIComponent(dataStr);
-    img.src = url;
-  }
-  if (textEl) {
-    textEl.textContent = "Inhalt: " + dataStr;
-  }
-  if (backdrop) backdrop.style.display = "flex";
-}
-
-function closeQrCodeModal() {
-  var backdrop = qs("qr-code-modal-backdrop");
-  if (backdrop) backdrop.style.display = "none";
-}
-
 function renderStampSection() {
   const statusEl = qs("stamp-status");
   const objectSelect = qs("stamp-object");
   const descInput = qs("stamp-description");
   const stampButton = qs("stamp-button");
   const stopButton = qs("stamp-stop-button");
+  const qrButton = qs("qr-scan-button");
 
   if (!statusEl || !objectSelect || !stampButton || !stopButton) return;
 
@@ -265,6 +99,10 @@ function renderStampSection() {
     stopButton.disabled = true;
     stampButton.style.display = "none";
     stopButton.style.display = "none";
+    if (qrButton) {
+      qrButton.style.display = "none";
+      qrButton.disabled = true;
+    }
     statusEl.textContent = "Bitte einloggen, um zu stempeln.";
     return;
   }
@@ -280,13 +118,19 @@ function renderStampSection() {
     objectSelect.appendChild(opt);
     objectSelect.disabled = true;
   } else {
-    allowed.forEach((o) => {
+    allowed.forEach(function (o) {
       const opt = document.createElement("option");
       opt.value = String(o.id);
       opt.textContent = o.name;
       objectSelect.appendChild(opt);
     });
     objectSelect.disabled = !!stamp;
+  }
+
+  const canScan = allowed.length > 0 && !stamp;
+  if (qrButton) {
+    qrButton.disabled = !canScan;
+    qrButton.style.display = canScan ? "inline-flex" : "none";
   }
 
   if (!stamp) {
@@ -300,8 +144,13 @@ function renderStampSection() {
     stampButton.style.display = "inline-flex";
     stopButton.style.display = "none";
   } else {
-    const obj = allowed.find((o) => o.id === stamp.objectId) ||
-      state.objects.find((o) => o.id === stamp.objectId);
+    const obj =
+      allowed.find(function (o) {
+        return o.id === stamp.objectId;
+      }) ||
+      state.objects.find(function (o) {
+        return o.id === stamp.objectId;
+      });
     const objName = obj ? obj.name : "(Objekt)";
     statusEl.textContent =
       "Eingestempelt seit " +
@@ -316,7 +165,12 @@ function renderStampSection() {
       descInput.value = stamp.description || "";
     }
     const val = String(stamp.objectId);
-    const hasOption = [...objectSelect.options].some((o) => o.value === val);
+    const hasOption = Array.prototype.some.call(
+      objectSelect.options,
+      function (o) {
+        return o.value === val;
+      }
+    );
     if (hasOption) objectSelect.value = val;
     stampButton.disabled = true;
     stopButton.disabled = false;
@@ -352,7 +206,7 @@ function renderEntriesSection() {
 
   if (filterObjectSelect) {
     filterObjectSelect.innerHTML = "";
-    vm.objectOptions.forEach((opt) => {
+    vm.objectOptions.forEach(function (opt) {
       const o = document.createElement("option");
       o.value = opt.value;
       o.textContent = opt.label;
@@ -363,7 +217,7 @@ function renderEntriesSection() {
 
   if (filterUserSelect) {
     filterUserSelect.innerHTML = "";
-    vm.userOptions.forEach((opt) => {
+    vm.userOptions.forEach(function (opt) {
       const o = document.createElement("option");
       o.value = opt.value;
       o.textContent = opt.label;
@@ -381,41 +235,52 @@ function renderEntriesSection() {
     emptyEl.style.display = "none";
   }
 
-  for (const row of vm.rows) {
+  vm.rows.forEach(function (row) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(row.date)}</td>
-      <td>${escapeHtml(row.start)}</td>
-      <td>${escapeHtml(row.end)}</td>
-      <td><span class="pill">${escapeHtml(row.durationLabel)}</span></td>
-      <td>${escapeHtml(row.objectName)}</td>
-      <td class="description-cell">${escapeHtml(row.description)}</td>
-      ${
-        state.currentUser && (isAdmin() || isLead())
-          ? `<td>${escapeHtml(row.username)}</td>`
-          : `<td style="display:none;"></td>`
-      }
-      <td><button type="button" class="btn-danger" data-entry-id="${
-        row.id
-      }">✕</button></td>
-    `;
+    tr.innerHTML =
+      '<td>' +
+      escapeHtml(row.date) +
+      "</td>" +
+      "<td>" +
+      escapeHtml(row.start) +
+      "</td>" +
+      "<td>" +
+      escapeHtml(row.end) +
+      "</td>" +
+      '<td><span class="pill">' +
+      escapeHtml(row.durationLabel) +
+      "</span></td>" +
+      "<td>" +
+      escapeHtml(row.objectName) +
+      "</td>" +
+      '<td class="description-cell">' +
+      escapeHtml(row.description) +
+      "</td>" +
+      (state.currentUser && (isAdmin() || isLead())
+        ? "<td>" + escapeHtml(row.username) + "</td>"
+        : '<td style="display:none;"></td>') +
+      '<td><button type="button" class="btn-danger" data-entry-id="' +
+      row.id +
+      '">✕</button></td>';
     tbody.appendChild(tr);
-  }
+  });
 
   totalEl.textContent = formatDuration(vm.totalMinutes);
 
-  tbody.querySelectorAll("[data-entry-id]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+  const buttons = tbody.querySelectorAll("[data-entry-id]");
+  buttons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
       const id = Number(btn.getAttribute("data-entry-id"));
       const ok = confirm("Buchung wirklich löschen?");
       if (!ok) return;
-      try {
-        await deleteEntry(id);
-        renderEntriesSection();
-      } catch (e) {
-        console.error("Fehler beim Löschen der Buchung:", e);
-        alert("Buchung konnte nicht gelöscht werden.");
-      }
+      deleteEntry(id)
+        .then(function () {
+          renderEntriesSection();
+        })
+        .catch(function (e) {
+          console.error("Fehler beim Löschen der Buchung:", e);
+          alert("Buchung konnte nicht gelöscht werden.");
+        });
     });
   });
 }
@@ -433,45 +298,46 @@ function renderObjectsSection() {
     emptyEl.style.display = "none";
   }
 
-  for (const obj of state.objects) {
+  state.objects.forEach(function (obj) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(obj.name)}</td>
-      <td>
-        <button type="button" class="btn-secondary small-btn" data-object-qr="${obj.id}">QR</button>
-        <button type="button" class="btn-danger" data-object-id="${obj.id}">Löschen</button>
-      </td>
-    `;
+    tr.innerHTML =
+      "<td>" +
+      escapeHtml(obj.name || "") +
+      "</td>" +
+      "<td>" +
+      escapeHtml(obj.code || "") +
+      "</td>" +
+      '<td><button type="button" class="btn-danger" data-object-id="' +
+      obj.id +
+      '">Löschen</button></td>';
     tbody.appendChild(tr);
-  }
+  });
 
-  tbody.querySelectorAll("[data-object-id]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+  const buttons = tbody.querySelectorAll("[data-object-id]");
+  buttons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
       const id = Number(btn.getAttribute("data-object-id"));
-      const obj = state.objects.find((o) => o.id === id);
+      const obj = state.objects.find(function (o) {
+        return o.id === id;
+      });
       if (!obj) return;
       const ok = confirm(
-        `Objekt "${obj.name}" wirklich löschen? Alle zugehörigen Buchungen werden entfernt.`
+        'Objekt "' +
+          obj.name +
+          '" wirklich löschen? Alle zugehörigen Buchungen werden entfernt.'
       );
       if (!ok) return;
-      try {
-        await deleteObject(id);
-        renderObjectsSection();
-        renderEntriesSection();
-        renderUsersSection();
-        renderStampSection();
-      } catch (e) {
-        console.error("Fehler beim Löschen des Objekts:", e);
-        alert("Objekt konnte nicht gelöscht werden.");
-      }
-    });
-  });
-  tbody.querySelectorAll("[data-object-qr]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = Number(btn.getAttribute("data-object-qr"));
-      if (!Number.isNaN(id)) {
-        openQrCodeModal(id);
-      }
+      deleteObject(id)
+        .then(function () {
+          renderObjectsSection();
+          renderEntriesSection();
+          renderUsersSection();
+          renderStampSection();
+        })
+        .catch(function (e) {
+          console.error("Fehler beim Löschen des Objekts:", e);
+          alert("Objekt konnte nicht gelöscht werden.");
+        });
     });
   });
 }
@@ -489,7 +355,7 @@ function renderUsersSection() {
     emptyEl.style.display = "none";
   }
 
-  for (const user of state.users) {
+  state.users.forEach(function (user) {
     const tr = document.createElement("tr");
     let roleLabel = "Mitarbeiter";
     let badgeClass = "badge-user";
@@ -511,61 +377,79 @@ function renderUsersSection() {
       objectsLabel = "keine";
     } else {
       const names = state.objects
-        .filter((o) => ids.includes(o.id))
-        .map((o) => o.name);
+        .filter(function (o) {
+          return ids.indexOf(o.id) !== -1;
+        })
+        .map(function (o) {
+          return o.name;
+        });
       if (!names.length) objectsLabel = "keine";
       else if (names.length <= 2) objectsLabel = names.join(", ");
-      else objectsLabel = names.slice(0, 2).join(", ") + ` (+${names.length - 2})`;
+      else
+        objectsLabel =
+          names.slice(0, 2).join(", ") + " (+" + (names.length - 2) + ")";
     }
 
-    tr.innerHTML = `
-      <td>${escapeHtml(user.username)}</td>
-      <td><span class="badge ${badgeClass}">${escapeHtml(roleLabel)}</span></td>
-      <td>
-        ${escapeHtml(objectsLabel || "")}
-        ${
-          user.role !== "admin"
-            ? `<button type="button" class="btn-secondary small-btn" data-edit-objects="${user.id}">Objekte</button>`
-            : ""
-        }
-      </td>
-      <td>
-        ${
-          user.username === "admin"
-            ? ""
-            : `<button type="button" class="btn-danger" data-user-id="${user.id}">Löschen</button>`
-        }
-      </td>
-    `;
+    tr.innerHTML =
+      "<td>" +
+      escapeHtml(user.username) +
+      "</td>" +
+      '<td><span class="badge ' +
+      badgeClass +
+      '">' +
+      escapeHtml(roleLabel) +
+      "</span></td>" +
+      "<td>" +
+      escapeHtml(objectsLabel || "") +
+      (user.role !== "admin"
+        ? ' <button type="button" class="btn-secondary small-btn" data-edit-objects="' +
+          user.id +
+          '">Objekte</button>'
+        : "") +
+      "</td>" +
+      "<td>" +
+      (user.username === "admin"
+        ? ""
+        : '<button type="button" class="btn-danger" data-user-id="' +
+          user.id +
+          '">Löschen</button>') +
+      "</td>";
     tbody.appendChild(tr);
-  }
+  });
 
-  tbody.querySelectorAll("[data-user-id]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+  const delButtons = tbody.querySelectorAll("[data-user-id]");
+  delButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
       const id = Number(btn.getAttribute("data-user-id"));
-      const user = state.users.find((u) => u.id === id);
+      const user = state.users.find(function (u) {
+        return u.id === id;
+      });
       if (!user) return;
       if (state.currentUser && state.currentUser.id === id) {
         alert("Dich selbst zu löschen ist keine gute Idee.");
         return;
       }
       const ok = confirm(
-        `Benutzer "${user.username}" wirklich löschen? Alle zugehörigen Buchungen werden entfernt.`
+        'Benutzer "' +
+          user.username +
+          '" wirklich löschen? Alle zugehörigen Buchungen werden entfernt.'
       );
       if (!ok) return;
-      try {
-        await deleteUser(id);
-        renderUsersSection();
-        renderEntriesSection();
-      } catch (e) {
-        console.error("Fehler beim Löschen des Benutzers:", e);
-        alert("Benutzer konnte nicht gelöscht werden.");
-      }
+      deleteUser(id)
+        .then(function () {
+          renderUsersSection();
+          renderEntriesSection();
+        })
+        .catch(function (e) {
+          console.error("Fehler beim Löschen des Benutzers:", e);
+          alert("Benutzer konnte nicht gelöscht werden.");
+        });
     });
   });
 
-  tbody.querySelectorAll("[data-edit-objects]").forEach((btn) => {
-    btn.addEventListener("click", () => {
+  const editButtons = tbody.querySelectorAll("[data-edit-objects]");
+  editButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
       const id = Number(btn.getAttribute("data-edit-objects"));
       openObjectModal(id);
     });
@@ -573,7 +457,9 @@ function renderUsersSection() {
 }
 
 function openObjectModal(userId) {
-  const user = state.users.find((u) => u.id === userId);
+  const user = state.users.find(function (u) {
+    return u.id === userId;
+  });
   if (!user) return;
   if (!state.objects.length) {
     alert("Es gibt noch keine Objekte.");
@@ -607,13 +493,15 @@ function renderObjectModalList() {
     listEl.appendChild(empty);
     return;
   }
-  const user = state.users.find((u) => u.id === objectModalUserId);
+  const user = state.users.find(function (u) {
+    return u.id === objectModalUserId;
+  });
   if (!user) return;
   const allowed = Array.isArray(user.allowedObjectIds) ? user.allowedObjectIds : [];
-  const term = (searchInput && searchInput.value || "").toLowerCase().trim();
-  const filtered = state.objects.filter((o) =>
-    !term || String(o.name || "").toLowerCase().includes(term)
-  );
+  const term = ((searchInput && searchInput.value) || "").toLowerCase().trim();
+  const filtered = state.objects.filter(function (o) {
+    return !term || String(o.name || "").toLowerCase().indexOf(term) !== -1;
+  });
   if (!filtered.length) {
     const empty = document.createElement("div");
     empty.className = "modal-list-empty";
@@ -621,19 +509,128 @@ function renderObjectModalList() {
     listEl.appendChild(empty);
     return;
   }
-  for (const obj of filtered) {
+  filtered.forEach(function (obj) {
     const label = document.createElement("label");
     label.className = "modal-list-item";
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.value = String(obj.id);
-    cb.checked = allowed.includes(obj.id);
+    cb.checked = allowed.indexOf(obj.id) !== -1;
     const span = document.createElement("span");
     span.textContent = obj.name;
     label.appendChild(cb);
     label.appendChild(span);
     listEl.appendChild(label);
+  });
+}
+
+function findObjectByQrText(text) {
+  if (!text) return null;
+  const trimmed = String(text).trim();
+  const allowed = getAllowedObjectsForCurrentUser();
+  if (!allowed || !allowed.length) return null;
+
+  const byCode = allowed.find(function (o) {
+    return o.code && String(o.code) === trimmed;
+  });
+  if (byCode) return byCode;
+
+  const match = trimmed.match(/^OBJ:(\d+)$/i);
+  if (match) {
+    const id = parseInt(match[1], 10);
+    const byId = allowed.find(function (o) {
+      return o.id === id;
+    });
+    if (byId) return byId;
   }
+
+  const asNum = parseInt(trimmed, 10);
+  if (!isNaN(asNum)) {
+    const byId2 = allowed.find(function (o) {
+      return o.id === asNum;
+    });
+    if (byId2) return byId2;
+  }
+
+  return null;
+}
+
+function onQrDecoded(decodedText) {
+  const obj = findObjectByQrText(decodedText);
+  if (!obj) {
+    alert(
+      "Kein passendes Objekt für diesen QR-Code gefunden oder dir nicht zugewiesen."
+    );
+    return;
+  }
+  const select = qs("stamp-object");
+  if (select) {
+    select.value = String(obj.id);
+  }
+  alert('Objekt "' + obj.name + '" ausgewählt.');
+  closeQrModal();
+}
+
+function stopQrScanner() {
+  if (!qrScanner) return;
+  qrScanner
+    .stop()
+    .then(function () {
+      qrScanner.clear();
+      qrScanner = null;
+    })
+    .catch(function (e) {
+      console.error("Fehler beim Stoppen des QR-Scanners:", e);
+      qrScanner = null;
+    });
+}
+
+function openQrModal() {
+  const backdrop = qs("qr-modal-backdrop");
+  if (!backdrop) return;
+  if (!window.Html5Qrcode) {
+    alert("QR-Scanner-Bibliothek nicht geladen.");
+    return;
+  }
+  backdrop.style.display = "flex";
+
+  if (qrScanner) {
+    stopQrScanner();
+  }
+
+  try {
+    qrScanner = new Html5Qrcode("qr-reader");
+  } catch (e) {
+    console.error("Fehler beim Initialisieren des QR-Scanners:", e);
+    alert("QR-Scanner konnte nicht gestartet werden.");
+    backdrop.style.display = "none";
+    qrScanner = null;
+    return;
+  }
+
+  qrScanner
+    .start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      function (decodedText, decodedResult) {
+        onQrDecoded(decodedText);
+      },
+      function (errorMessage) {
+        // Dekodierfehler ignorieren
+      }
+    )
+    .catch(function (err) {
+      console.error("Fehler beim Starten des QR-Scanners:", err);
+      alert("Kamera konnte nicht gestartet werden.");
+      backdrop.style.display = "none";
+      qrScanner = null;
+    });
+}
+
+function closeQrModal() {
+  const backdrop = qs("qr-modal-backdrop");
+  if (backdrop) backdrop.style.display = "none";
+  stopQrScanner();
 }
 
 function renderAll() {
@@ -644,38 +641,40 @@ function renderAll() {
   renderUsersSection();
 }
 
-async function onStampInClick() {
+function onStampInClick() {
   const objSelect = qs("stamp-object");
   const descInput = qs("stamp-description");
   const objectId = objSelect && objSelect.value ? objSelect.value : "";
   const description = descInput ? descInput.value.trim() : "";
 
-  try {
-    const res = await handleClockIn(objectId, description);
-    if (!res.ok) {
-      alert(res.message);
-      return;
-    }
-    renderStampSection();
-  } catch (e) {
-    console.error("Fehler beim Einstempeln:", e);
-    alert("Buchung konnte nicht gestartet werden.");
-  }
+  handleClockIn(objectId, description)
+    .then(function (res) {
+      if (!res.ok) {
+        alert(res.message);
+        return;
+      }
+      renderStampSection();
+    })
+    .catch(function (e) {
+      console.error("Fehler beim Einstempeln:", e);
+      alert("Buchung konnte nicht gestartet werden.");
+    });
 }
 
-async function onStampOutClick() {
-  try {
-    const res = await handleClockOut();
-    if (!res.ok) {
-      alert(res.message);
-      return;
-    }
-    renderStampSection();
-    renderEntriesSection();
-  } catch (e) {
-    console.error("Fehler beim Ausstempeln:", e);
-    alert("Buchung konnte nicht beendet werden.");
-  }
+function onStampOutClick() {
+  handleClockOut()
+    .then(function (res) {
+      if (!res.ok) {
+        alert(res.message);
+        return;
+      }
+      renderStampSection();
+      renderEntriesSection();
+    })
+    .catch(function (e) {
+      console.error("Fehler beim Ausstempeln:", e);
+      alert("Buchung konnte nicht beendet werden.");
+    });
 }
 
 function setupEventHandlers() {
@@ -692,35 +691,32 @@ function setupEventHandlers() {
   const modalCloseBtn = qs("object-modal-close");
   const modalCancelBtn = qs("object-modal-cancel");
   const modalSaveBtn = qs("object-modal-save");
-  const qrScanButton = qs("qr-scan-button");
-  const qrModalBackdrop = qs("qr-modal-backdrop");
-  const qrModalClose = qs("qr-modal-close");
-  const qrModalCancel = qs("qr-modal-cancel");
-  const qrCodeModalClose = qs("qr-code-modal-close");
-  const qrCodeModalClose2 = qs("qr-code-modal-close2");
-  const qrCodeModalBackdrop = qs("qr-code-modal-backdrop");
+  const qrBtn = qs("qr-scan-button");
+  const qrBackdrop = qs("qr-modal-backdrop");
+  const qrCloseBtn = qs("qr-modal-close");
 
   if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
+    loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const username = qs("login-username").value.trim();
       const password = qs("login-password").value;
-      try {
-        const res = await login(username, password);
-        if (!res.ok) {
-          alert(res.message || "Login fehlgeschlagen.");
-          return;
-        }
-        showAppView();
-      } catch (err) {
-        console.error("Login-Fehler:", err);
-        alert("Login nicht möglich.");
-      }
+      login(username, password)
+        .then(function (res) {
+          if (!res.ok) {
+            alert(res.message || "Login fehlgeschlagen.");
+            return;
+          }
+          showAppView();
+        })
+        .catch(function (err) {
+          console.error("Login-Fehler:", err);
+          alert("Login nicht möglich.");
+        });
     });
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
+    logoutBtn.addEventListener("click", function () {
       logout();
       showLoginView();
     });
@@ -735,40 +731,44 @@ function setupEventHandlers() {
   }
 
   if (filterObjectSelect) {
-    filterObjectSelect.addEventListener("change", () => {
+    filterObjectSelect.addEventListener("change", function () {
       setObjectFilter(filterObjectSelect.value || "all");
       renderEntriesSection();
     });
   }
 
   if (filterUserSelect) {
-    filterUserSelect.addEventListener("change", () => {
+    filterUserSelect.addEventListener("change", function () {
       setUserFilter(filterUserSelect.value || "all");
       renderEntriesSection();
     });
   }
 
   if (objectForm) {
-    objectForm.addEventListener("submit", async (e) => {
+    objectForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      const input = qs("object-name");
-      const name = input.value.trim();
+      const nameInput = qs("object-name");
+      const codeInput = qs("object-code");
+      const name = nameInput.value.trim();
+      const code = codeInput.value.trim();
       if (!name) return;
-      try {
-        await createObject(name);
-        input.value = "";
-        renderObjectsSection();
-        renderStampSection();
-        renderUsersSection();
-      } catch (err) {
-        console.error("Fehler beim Anlegen des Objekts:", err);
-        alert("Objekt konnte nicht angelegt werden.");
-      }
+      createObject(name, code || null)
+        .then(function () {
+          nameInput.value = "";
+          codeInput.value = "";
+          renderObjectsSection();
+          renderStampSection();
+          renderUsersSection();
+        })
+        .catch(function (err) {
+          console.error("Fehler beim Anlegen des Objekts:", err);
+          alert("Objekt konnte nicht angelegt werden.");
+        });
     });
   }
 
   if (userForm) {
-    userForm.addEventListener("submit", async (e) => {
+    userForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const uInput = qs("user-username");
       const pInput = qs("user-password");
@@ -782,82 +782,52 @@ function setupEventHandlers() {
         alert("Benutzername und Passwort sind Pflicht.");
         return;
       }
-      if (state.users.find((u) => u.username === username)) {
+      const exists = state.users.find(function (u) {
+        return u.username === username;
+      });
+      if (exists) {
         alert("Benutzername existiert bereits.");
         return;
       }
-      try {
-        await createUser(username, password, role);
-        uInput.value = "";
-        pInput.value = "";
-        rSelect.value = "user";
-        renderUsersSection();
-      } catch (err) {
-        console.error("Fehler beim Anlegen des Benutzers:", err);
-        alert("Benutzer konnte nicht angelegt werden.");
-      }
-    });
-  }
-
-  if (qrScanButton) {
-    qrScanButton.addEventListener("click", function () {
-      openQrModal();
-    });
-  }
-
-  if (qrModalClose) {
-    qrModalClose.addEventListener("click", function () {
-      closeQrModal();
-    });
-  }
-  if (qrModalCancel) {
-    qrModalCancel.addEventListener("click", function () {
-      closeQrModal();
-    });
-  }
-  if (qrModalBackdrop) {
-    qrModalBackdrop.addEventListener("click", function (e) {
-      if (e.target === qrModalBackdrop) {
-        closeQrModal();
-      }
-    });
-  }
-
-  if (qrCodeModalClose) {
-    qrCodeModalClose.addEventListener("click", function () {
-      closeQrCodeModal();
-    });
-  }
-  if (qrCodeModalClose2) {
-    qrCodeModalClose2.addEventListener("click", function () {
-      closeQrCodeModal();
-    });
-  }
-  if (qrCodeModalBackdrop) {
-    qrCodeModalBackdrop.addEventListener("click", function (e) {
-      if (e.target === qrCodeModalBackdrop) {
-        closeQrCodeModal();
-      }
+      createUser(username, password, role)
+        .then(function () {
+          uInput.value = "";
+          pInput.value = "";
+          rSelect.value = "user";
+          renderUsersSection();
+        })
+        .catch(function (err) {
+          console.error("Fehler beim Anlegen des Benutzers:", err);
+          alert("Benutzer konnte nicht angelegt werden.");
+        });
     });
   }
 
   if (modalSearch) {
-    modalSearch.addEventListener("input", () => renderObjectModalList());
+    modalSearch.addEventListener("input", function () {
+      renderObjectModalList();
+    });
   }
   if (modalCloseBtn) {
-    modalCloseBtn.addEventListener("click", () => closeObjectModal());
+    modalCloseBtn.addEventListener("click", function () {
+      closeObjectModal();
+    });
   }
   if (modalCancelBtn) {
-    modalCancelBtn.addEventListener("click", () => closeObjectModal());
+    modalCancelBtn.addEventListener("click", function () {
+      closeObjectModal();
+    });
   }
   if (modalBackdrop) {
-    modalBackdrop.addEventListener("click", (e) => {
+    modalBackdrop.addEventListener("click", function (e) {
       if (e.target === modalBackdrop) closeObjectModal();
     });
   }
   if (modalSaveBtn) {
-    modalSaveBtn.addEventListener("click", async () => {
-      const user = state.users.find((u) => u.id === objectModalUserId);
+    modalSaveBtn.addEventListener("click", function () {
+      const user = state.users.find(function (u) {
+        return u.id === objectModalUserId;
+      });
       if (!user) {
         closeObjectModal();
         return;
@@ -869,40 +839,58 @@ function setupEventHandlers() {
       }
       const boxes = listEl.querySelectorAll('input[type="checkbox"]');
       const ids = [];
-      boxes.forEach((cb) => {
+      boxes.forEach(function (cb) {
         if (cb.checked) {
           const v = Number(cb.value);
           if (!Number.isNaN(v)) ids.push(v);
         }
       });
-      try {
-        await updateUserAllowedObjects(user.id, ids);
-        renderUsersSection();
-        if (state.currentUser && state.currentUser.id === user.id) {
-          renderStampSection();
-          renderEntriesSection();
-        }
-        closeObjectModal();
-      } catch (err) {
-        console.error("Fehler beim Speichern der Objekt-Zuweisung:", err);
-        alert("Objekte konnten nicht gespeichert werden.");
-      }
+      updateUserAllowedObjects(user.id, ids)
+        .then(function () {
+          renderUsersSection();
+          if (state.currentUser && state.currentUser.id === user.id) {
+            renderStampSection();
+            renderEntriesSection();
+          }
+          closeObjectModal();
+        })
+        .catch(function (err) {
+          console.error("Fehler beim Speichern der Objekt-Zuweisung:", err);
+          alert("Objekte konnten nicht gespeichert werden.");
+        });
+    });
+  }
+
+  if (qrBtn) {
+    qrBtn.addEventListener("click", function () {
+      openQrModal();
+    });
+  }
+  if (qrCloseBtn) {
+    qrCloseBtn.addEventListener("click", function () {
+      closeQrModal();
+    });
+  }
+  if (qrBackdrop) {
+    qrBackdrop.addEventListener("click", function (e) {
+      if (e.target === qrBackdrop) closeQrModal();
     });
   }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    await initApp();
-    setupEventHandlers();
-    if (state.currentUser) {
-      showAppView();
-    } else {
+document.addEventListener("DOMContentLoaded", function () {
+  initApp()
+    .then(function () {
+      setupEventHandlers();
+      if (state.currentUser) {
+        showAppView();
+      } else {
+        showLoginView();
+      }
+    })
+    .catch(function (e) {
+      console.error("Fehler beim Initialisieren der App:", e);
+      alert("App konnte nicht gestartet werden.");
       showLoginView();
-    }
-  } catch (e) {
-    console.error("Fehler beim Initialisieren der App:", e);
-    alert("App konnte nicht gestartet werden.");
-    showLoginView();
-  }
+    });
 });

@@ -1,4 +1,4 @@
-// api.js
+﻿// api.js
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 // HIER DEINE SUPABASE-DATEN EINTRAGEN:
@@ -83,10 +83,10 @@ export async function apiDeleteEntry(id) {
   if (error) throw error;
 }
 
-export async function apiCreateObject(name) {
+export async function apiCreateObject(name, code) {
   const { data, error } = await supabase
     .from("objects")
-    .insert([{ name }])
+    .insert([{ name: name, code: code }])
     .select();
   if (error) throw error;
   return data && data.length ? data[0] : null;

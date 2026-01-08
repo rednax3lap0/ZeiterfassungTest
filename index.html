@@ -189,6 +189,16 @@
       flex: 1 1 140px;
     }
 
+    .stamp-object-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .stamp-object-row select {
+      flex: 1 1 auto;
+    }
+
     .entries-header {
       display: flex;
       justify-content: space-between;
@@ -326,6 +336,11 @@
       margin-top: 10px;
     }
 
+    #qr-reader {
+      width: 100%;
+      min-height: 260px;
+    }
+
     @media (max-width: 640px) {
       .page { padding: 6px; }
       .card {
@@ -394,10 +409,10 @@
         <div class="stack">
           <div>
             <label for="stamp-object">Objekt</label>
-            <select id="stamp-object"></select>
-          </div>
-          <div>
-            <button type="button" id="qr-scan-button" class="btn-secondary" style="width:100%;">QR-Code scannen</button>
+            <div class="stamp-object-row">
+              <select id="stamp-object"></select>
+              <button type="button" id="qr-scan-button" class="btn-secondary small-btn">QR scannen</button>
+            </div>
           </div>
           <div>
             <label for="stamp-description">Beschreibung (optional)</label>
@@ -465,12 +480,18 @@
       <section class="section admin-only" id="objects-section">
         <h2>Objekte</h2>
         <div class="hint">
-          Hier legst du alle Objekte/Projekte an, auf die Mitarbeiter buchen können.
+          Hier legst du alle Objekte/Projekte an, auf die Mitarbeiter buchen können.<br>
+          Die Objekt-ID wird später als QR-Code-Inhalt verwendet.
         </div>
         <form id="object-form" class="stack" style="margin-top:8px;">
           <div>
-            <label for="object-name">Neues Objekt</label>
+            <label for="object-name">Neues Objekt – Name</label>
             <input id="object-name" type="text" placeholder="z.B. Baustelle A" />
+          </div>
+          <div>
+            <label for="object-code">Objekt-ID / QR-Code-Inhalt</label>
+            <input id="object-code" type="text" placeholder="z.B. A-01 oder 1001" />
+            <div class="hint">Genau diesen Text solltest du beim Erstellen des QR-Codes verwenden.</div>
           </div>
           <div>
             <button type="submit" class="btn-secondary" style="width:100%;">Objekt hinzufügen</button>
@@ -481,6 +502,7 @@
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Code</th>
                 <th></th>
               </tr>
             </thead>
@@ -558,56 +580,25 @@
     </div>
   </div>
 
-
-  <!-- QR-SCANNER-MODAL -->
+  <!-- MODAL: QR-SCANNER -->
   <div id="qr-modal-backdrop" class="modal-backdrop">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-header">
-        <div class="modal-title">
-          QR-Code scannen
-        </div>
+        <div class="modal-title">QR-Code scannen</div>
         <button id="qr-modal-close" type="button" class="btn-secondary small-btn">✕</button>
       </div>
       <div class="modal-body">
+        <div id="qr-reader"></div>
         <div class="hint">
-          Kamera auf den Objekt-QR-Code halten. Der QR-Code muss das Objekt enthalten (z.B. "OBJ:5").
+          Der QR-Code sollte genau den Text enthalten, den du als Objekt-ID / Code vergeben hast.
         </div>
-        <div id="qr-reader" style="width:100%; max-height:320px; margin-top:8px;"></div>
-        <div id="qr-error" class="hint" style="color:#b91c1c; display:none; margin-top:6px;"></div>
-      </div>
-      <div class="modal-actions">
-        <button id="qr-modal-cancel" type="button" class="btn-secondary">Abbrechen</button>
       </div>
     </div>
   </div>
 
-  <!-- QR-CODE-ANZEIGE FÜR OBJEKTE (ADMIN) -->
-  <div id="qr-code-modal-backdrop" class="modal-backdrop">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modal-header">
-        <div class="modal-title">
-          QR-Code für Objekt – <span id="qr-code-modal-object-name"></span>
-        </div>
-        <button id="qr-code-modal-close" type="button" class="btn-secondary small-btn">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="hint">
-          Diesen QR-Code kannst du ausdrucken oder am Objekt anbringen. Mitarbeiter scannen ihn in der Stempeluhr.
-        </div>
-        <div style="display:flex;justify-content:center;margin-top:8px;">
-          <img id="qr-code-image" alt="QR-Code" />
-        </div>
-        <div id="qr-code-text" class="hint" style="text-align:center;margin-top:6px;font-size:11px;"></div>
-      </div>
-      <div class="modal-actions">
-        <button id="qr-code-modal-close2" type="button" class="btn-secondary">Schließen</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Einstiegspunkt -->
+  <!-- QR-Scanner Bibliothek -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-<script type="module" src="./ui.js"></script>
-
+  <!-- Einstiegspunkt -->
+  <script type="module" src="./ui.js"></script>
 </body>
 </html>
