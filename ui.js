@@ -558,16 +558,22 @@ function findObjectByQrText(text) {
 function onQrDecoded(decodedText) {
   const obj = findObjectByQrText(decodedText);
   if (!obj) {
-    alert(
-      "Kein passendes Objekt für diesen QR-Code gefunden oder dir nicht zugewiesen."
-    );
+    alert("Kein passendes Objekt für diesen QR-Code gefunden oder dir nicht zugewiesen.");
     return;
   }
+
   const select = qs("stamp-object");
   if (select) {
     select.value = String(obj.id);
   }
-  alert('Objekt "' + obj.name + '" ausgewählt.');
+
+  // Status-Text aktualisieren statt Popup
+  const statusEl = qs("stamp-status");
+  if (statusEl) {
+    statusEl.textContent = 'Objekt "' + obj.name + '" wurde per QR-Code ausgewählt.';
+  }
+
+  // Scanner stoppen & Modal schließen
   closeQrModal();
 }
 
