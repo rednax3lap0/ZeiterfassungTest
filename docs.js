@@ -8,8 +8,8 @@ window.DOC_LINKS = [
      href: "docs/pflaumenkuchen-mit-streuseln.pdf",
      label: "Datenschutz-Hinweise (PDF)",
    },
-  // {
-  //   href: "docs/unterweisung_2025.pdf",
-  //   label: "Sicherheitsunterweisung 2025 (PDF)",
-  // },
+   {
+     href: "docs/Bla bla bla.pdf",
+     label: "Test Dokument (PDF)",
+   },
 ];
