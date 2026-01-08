@@ -140,9 +140,9 @@ function renderStampSection() {
       stamp.start +
       " Uhr am " +
       stamp.date +
-      " bei "" +
+      ' bei "' +
       objName +
-      "".";
+      '".';
     if (descInput) {
       descInput.disabled = true;
       descInput.value = stamp.description || "";
