@@ -397,6 +397,9 @@
             <select id="stamp-object"></select>
           </div>
           <div>
+            <button type="button" id="qr-scan-button" class="btn-secondary" style="width:100%;">QR-Code scannen</button>
+          </div>
+          <div>
             <label for="stamp-description">Beschreibung (optional)</label>
             <input id="stamp-description" type="text" placeholder="z.B. Tätigkeit" />
           </div>
@@ -555,7 +558,55 @@
     </div>
   </div>
 
+
+  <!-- QR-SCANNER-MODAL -->
+  <div id="qr-modal-backdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">
+          QR-Code scannen
+        </div>
+        <button id="qr-modal-close" type="button" class="btn-secondary small-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="hint">
+          Kamera auf den Objekt-QR-Code halten. Der QR-Code muss das Objekt enthalten (z.B. "OBJ:5").
+        </div>
+        <div id="qr-reader" style="width:100%; max-height:320px; margin-top:8px;"></div>
+        <div id="qr-error" class="hint" style="color:#b91c1c; display:none; margin-top:6px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="qr-modal-cancel" type="button" class="btn-secondary">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR-CODE-ANZEIGE FÜR OBJEKTE (ADMIN) -->
+  <div id="qr-code-modal-backdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">
+          QR-Code für Objekt – <span id="qr-code-modal-object-name"></span>
+        </div>
+        <button id="qr-code-modal-close" type="button" class="btn-secondary small-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="hint">
+          Diesen QR-Code kannst du ausdrucken oder am Objekt anbringen. Mitarbeiter scannen ihn in der Stempeluhr.
+        </div>
+        <div style="display:flex;justify-content:center;margin-top:8px;">
+          <img id="qr-code-image" alt="QR-Code" />
+        </div>
+        <div id="qr-code-text" class="hint" style="text-align:center;margin-top:6px;font-size:11px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="qr-code-modal-close2" type="button" class="btn-secondary">Schließen</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Einstiegspunkt -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
   <script type="module" src="./ui.js"></script>
 </body>
 </html>

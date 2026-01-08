@@ -24,6 +24,8 @@ import {
 } from "./logic.js";
 
 let objectModalUserId = null;
+let qrScanner = null;
+let qrScanning = false;
 
 function qs(id) {
   return document.getElementById(id);
@@ -72,6 +74,172 @@ function renderUserBadge() {
   if (entriesSection) {
     entriesSection.style.display = isUserOnly() ? "none" : "block";
   }
+}
+
+
+function parseObjectIdFromQr(text) {
+  if (!text) return null;
+  var t = String(text).trim();
+  if (t.indexOf("OBJ:") === 0 || t.indexOf("obj:") === 0) {
+    var idStr = t.slice(4).trim();
+    var n = parseInt(idStr, 10);
+    return isNaN(n) ? null : n;
+  }
+  var n2 = parseInt(t, 10);
+  return isNaN(n2) ? null : n2;
+}
+
+function stopQrScanner() {
+  if (qrScanner && qrScanning) {
+    try {
+      qrScanner
+        .stop()
+        .then(function () {
+          qrScanner
+            .clear()
+            .catch(function (e) {
+              console.error("QR clear Fehler:", e);
+            });
+        })
+        .catch(function (e) {
+          console.error("QR stop Fehler:", e);
+        });
+    } catch (e) {
+      console.error("QR stop/catch Fehler:", e);
+    }
+  }
+  qrScanner = null;
+  qrScanning = false;
+}
+
+function closeQrModal() {
+  stopQrScanner();
+  var backdrop = qs("qr-modal-backdrop");
+  if (backdrop) backdrop.style.display = "none";
+}
+
+function openQrModal() {
+  if (!window.Html5Qrcode) {
+    alert("QR-Scanner-Bibliothek nicht geladen.");
+    return;
+  }
+  if (!state.currentUser) {
+    alert("Bitte zuerst einloggen.");
+    return;
+  }
+  var allowed = getAllowedObjectsForCurrentUser();
+  if (!allowed || !allowed.length) {
+    alert("Dir sind keine Objekte zugewiesen.");
+    return;
+  }
+  var backdrop = qs("qr-modal-backdrop");
+  var errorEl = qs("qr-error");
+  if (errorEl) {
+    errorEl.style.display = "none";
+    errorEl.textContent = "";
+  }
+  var readerElem = qs("qr-reader");
+  if (readerElem) {
+    readerElem.innerHTML = "";
+  }
+  if (backdrop) backdrop.style.display = "flex";
+
+  qrScanner = new Html5Qrcode("qr-reader");
+  qrScanning = true;
+
+  qrScanner
+    .start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      function (decodedText, decodedResult) {
+        if (!qrScanning) return;
+        var objectId = parseObjectIdFromQr(decodedText);
+        if (objectId === null) {
+          if (errorEl) {
+            errorEl.textContent = "QR-Code ungültig.";
+            errorEl.style.display = "block";
+          }
+          return;
+        }
+        var allowedObjs = getAllowedObjectsForCurrentUser();
+        var obj = null;
+        for (var i = 0; i < allowedObjs.length; i++) {
+          if (allowedObjs[i].id === objectId) {
+            obj = allowedObjs[i];
+            break;
+          }
+        }
+        if (!obj) {
+          if (errorEl) {
+            errorEl.textContent =
+              "Für dieses Objekt hast du keine Berechtigung.";
+            errorEl.style.display = "block";
+          }
+          return;
+        }
+        var select = qs("stamp-object");
+        if (select) {
+          var valStr = String(objectId);
+          var found = false;
+          for (var j = 0; j < select.options.length; j++) {
+            if (select.options[j].value === valStr) {
+              select.value = valStr;
+              found = true;
+              break;
+            }
+          }
+          if (!found && errorEl) {
+            errorEl.textContent =
+              "Objekt gefunden, aber nicht in der Auswahl.";
+            errorEl.style.display = "block";
+          }
+        }
+        closeQrModal();
+        renderStampSection();
+      },
+      function (errorMsg) {
+        // Scan-Fehler ignorieren (Rauschen)
+      }
+    )
+    .catch(function (e) {
+      console.error("QR-Start-Fehler:", e);
+      if (errorEl) {
+        errorEl.textContent = "Kamera konnte nicht gestartet werden.";
+        errorEl.style.display = "block";
+      }
+    });
+}
+
+function openQrCodeModal(objectId) {
+  var obj = null;
+  for (var i = 0; i < state.objects.length; i++) {
+    if (state.objects[i].id === objectId) {
+      obj = state.objects[i];
+      break;
+    }
+  }
+  if (!obj) return;
+  var backdrop = qs("qr-code-modal-backdrop");
+  var nameSpan = qs("qr-code-modal-object-name");
+  var img = qs("qr-code-image");
+  var textEl = qs("qr-code-text");
+  if (nameSpan) nameSpan.textContent = obj.name;
+  var dataStr = "OBJ:" + String(obj.id);
+  if (img) {
+    var url =
+      "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" +
+      encodeURIComponent(dataStr);
+    img.src = url;
+  }
+  if (textEl) {
+    textEl.textContent = "Inhalt: " + dataStr;
+  }
+  if (backdrop) backdrop.style.display = "flex";
+}
+
+function closeQrCodeModal() {
+  var backdrop = qs("qr-code-modal-backdrop");
+  if (backdrop) backdrop.style.display = "none";
 }
 
 function renderStampSection() {
@@ -269,7 +437,10 @@ function renderObjectsSection() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${escapeHtml(obj.name)}</td>
-      <td><button type="button" class="btn-danger" data-object-id="${obj.id}">Löschen</button></td>
+      <td>
+        <button type="button" class="btn-secondary small-btn" data-object-qr="${obj.id}">QR</button>
+        <button type="button" class="btn-danger" data-object-id="${obj.id}">Löschen</button>
+      </td>
     `;
     tbody.appendChild(tr);
   }
@@ -292,6 +463,14 @@ function renderObjectsSection() {
       } catch (e) {
         console.error("Fehler beim Löschen des Objekts:", e);
         alert("Objekt konnte nicht gelöscht werden.");
+      }
+    });
+  });
+  tbody.querySelectorAll("[data-object-qr]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = Number(btn.getAttribute("data-object-qr"));
+      if (!Number.isNaN(id)) {
+        openQrCodeModal(id);
       }
     });
   });
@@ -513,6 +692,13 @@ function setupEventHandlers() {
   const modalCloseBtn = qs("object-modal-close");
   const modalCancelBtn = qs("object-modal-cancel");
   const modalSaveBtn = qs("object-modal-save");
+  const qrScanButton = qs("qr-scan-button");
+  const qrModalBackdrop = qs("qr-modal-backdrop");
+  const qrModalClose = qs("qr-modal-close");
+  const qrModalCancel = qs("qr-modal-cancel");
+  const qrCodeModalClose = qs("qr-code-modal-close");
+  const qrCodeModalClose2 = qs("qr-code-modal-close2");
+  const qrCodeModalBackdrop = qs("qr-code-modal-backdrop");
 
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -609,6 +795,48 @@ function setupEventHandlers() {
       } catch (err) {
         console.error("Fehler beim Anlegen des Benutzers:", err);
         alert("Benutzer konnte nicht angelegt werden.");
+      }
+    });
+  }
+
+  if (qrScanButton) {
+    qrScanButton.addEventListener("click", function () {
+      openQrModal();
+    });
+  }
+
+  if (qrModalClose) {
+    qrModalClose.addEventListener("click", function () {
+      closeQrModal();
+    });
+  }
+  if (qrModalCancel) {
+    qrModalCancel.addEventListener("click", function () {
+      closeQrModal();
+    });
+  }
+  if (qrModalBackdrop) {
+    qrModalBackdrop.addEventListener("click", function (e) {
+      if (e.target === qrModalBackdrop) {
+        closeQrModal();
+      }
+    });
+  }
+
+  if (qrCodeModalClose) {
+    qrCodeModalClose.addEventListener("click", function () {
+      closeQrCodeModal();
+    });
+  }
+  if (qrCodeModalClose2) {
+    qrCodeModalClose2.addEventListener("click", function () {
+      closeQrCodeModal();
+    });
+  }
+  if (qrCodeModalBackdrop) {
+    qrCodeModalBackdrop.addEventListener("click", function (e) {
+      if (e.target === qrCodeModalBackdrop) {
+        closeQrCodeModal();
       }
     });
   }
