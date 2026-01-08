@@ -32,8 +32,8 @@ function loadFromStorage(key, fallback) {
     const raw = localStorage.getItem(key);
     if (!raw) return fallback;
     const parsed = JSON.parse(raw);
-    return parsed ?? fallback;
-  } catch {
+    return (parsed === undefined || parsed === null) ? fallback : parsed;
+  } catch (e) {
     return fallback;
   }
 }
@@ -66,7 +66,7 @@ function mapEntry(row) {
     date: row.date,
     start: row.start ? String(row.start).slice(0, 5) : "",
     end: row.end ? String(row.end).slice(0, 5) : "",
-    durationMinutes: row.duration_minutes ?? 0,
+    durationMinutes: (row.duration_minutes === undefined || row.duration_minutes === null ? 0 : row.duration_minutes),
     description: row.description || "",
   };
 }
