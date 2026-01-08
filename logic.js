@@ -105,6 +105,17 @@ function setCurrentStamp(stamp) {
   saveActiveStamps();
 }
 
+
+export function updateCurrentStampDescription(description) {
+  if (!state.currentUser) return;
+  const key = String(state.currentUser.id);
+  const stamp = state.activeStamps[key];
+  if (!stamp) return;
+  stamp.description = description || "";
+  saveActiveStamps();
+}
+
+
 export function calcDurationMinutes(start, end) {
   const partsStart = start.split(":");
   const partsEnd = end.split(":");

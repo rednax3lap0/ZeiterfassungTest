@@ -172,16 +172,16 @@
       margin: 1.5px 0;
     }
     .menu-dropdown {
-      position: absolute;
-      top: 52px;
-      right: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 240px;
       background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 12px 30px rgba(15,23,42,0.25);
-      padding: 6px;
-      min-width: 170px;
+      box-shadow: 4px 0 20px rgba(15,23,42,0.25);
+      padding: 12px 8px;
       display: none;
-      z-index: 20;
+      z-index: 40;
     }
     .menu-item {
       width: 100%;
@@ -228,6 +228,8 @@
     .badge-lead { background: #dbeafe; color: #1d4ed8; }
 
     .section { margin-top: 16px; }
+    .page-section { display: none; }
+    .page-section.page-active { display: block; }
 
     .stack { display: grid; gap: 8px; }
 
@@ -467,7 +469,7 @@
       </div>
 
       <!-- STEMPELUHR -->
-      <section class="section" id="stamp-section">
+      <section class="section page-section page-active" id="stamp-section">
         <h2>Stempeluhr</h2>
         <div id="stamp-status" class="hint" style="margin-bottom: 8px;">
           Du bist aktuell nicht eingestempelt.
@@ -479,10 +481,6 @@
               <select id="stamp-object"></select>
               <button type="button" id="qr-scan-button" class="btn-secondary small-btn">QR scannen</button>
             </div>
-          </div>
-          <div>
-            <label for="stamp-description">Beschreibung (optional)</label>
-            <input id="stamp-description" type="text" placeholder="z.B. Tätigkeit" />
           </div>
           <div class="stamp-buttons">
             <button type="button" id="stamp-button" class="btn-primary">
@@ -496,7 +494,7 @@
       </section>
 
       <!-- BUCHUNGSLISTE -->
-      <section class="section" id="entries-section">
+      <section class="section page-section" id="entries-section">
         <div class="entries-header">
           <div>
             <strong>Erfasste Zeiten</strong>
@@ -543,7 +541,7 @@
       </section>
 
       <!-- OBJEKTE (ADMIN) -->
-      <section class="section admin-only" id="objects-section">
+      <section class="section page-section admin-only" id="objects-section">
         <h2>Objekte</h2>
         <div class="hint">
           Hier legst du alle Objekte/Projekte an, auf die Mitarbeiter buchen können.<br>
@@ -579,7 +577,7 @@
       </section>
 
       <!-- BENUTZER (ADMIN) -->
-      <section class="section admin-only" id="users-section">
+      <section class="section page-section admin-only" id="users-section">
         <h2>Benutzer</h2>
         <div class="hint">
           Admin kann hier Mitarbeiter und Objektleitungen anlegen und ihnen Objekte zuweisen.
@@ -622,7 +620,7 @@
       </section>
 
       <!-- INFOS & DOKUMENTE -->
-      <section class="section" id="info-section">
+      <section class="section page-section" id="info-section">
         <h2>Infos &amp; Dokumente</h2>
         <div class="hint">
           Hier kannst du wichtige Hinweise und Links zu Dokumenten (z.B. PDFs) hinterlegen.
@@ -682,6 +680,27 @@
         <div class="hint">
           Der QR-Code sollte genau den Text enthalten, den du als Objekt-ID / Code vergeben hast.
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NOTIZ BEIM AUSSTEMPELN -->
+  <div id="note-modal-backdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">Tätigkeit / Notiz</div>
+        <button id="note-modal-close" type="button" class="btn-secondary small-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <label for="note-modal-text">Worum ging es?</label>
+          <textarea id="note-modal-text" rows="3" style="width:100%;border-radius:10px;border:1px solid #d1d5db;padding:8px;font-size:13px;"></textarea>
+          <div class="hint">Optional. Du kannst die Buchung auch ohne Notiz speichern.</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="note-modal-skip" type="button" class="btn-secondary">Ohne Notiz speichern</button>
+        <button id="note-modal-save" type="button" class="btn-primary">Speichern</button>
       </div>
     </div>
   </div>

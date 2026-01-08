@@ -17,6 +17,7 @@ import {
   createUser,
   deleteUser,
   updateUserAllowedObjects,
+  updateCurrentStampDescription,
   isAdmin,
   isLead,
   isUserOnly,
@@ -48,6 +49,7 @@ function showAppView() {
   qs("login-view").style.display = "none";
   qs("app-view").style.display = "block";
   renderAll();
+  setActiveSection("stamp-section");
 }
 
 function renderUserBadge() {
@@ -71,7 +73,8 @@ function renderUserBadge() {
   });
 
   if (entriesSection) {
-    entriesSection.style.display = isUserOnly() ? "none" : "block";
+    // Sichtbarkeit wird über page-active-Klasse gesteuert
+    entriesSection.style.display = "";
   }
 
   // Menüeinträge je nach Rolle ein-/ausblenden
@@ -84,6 +87,27 @@ function renderUserBadge() {
     item.style.display = isAdmin() ? "block" : "none";
   });
 }
+
+function setActiveSection(targetId) {
+  if (!targetId) targetId = "stamp-section";
+
+  // Normale Mitarbeiter dürfen nur Stempeluhr + Infos sehen
+  if (isUserOnly()) {
+    if (targetId !== "stamp-section" && targetId !== "info-section") {
+      targetId = "stamp-section";
+    }
+  }
+
+  var sections = document.querySelectorAll(".page-section");
+  sections.forEach(function (sec) {
+    sec.classList.remove("page-active");
+  });
+  var target = qs(targetId);
+  if (target) {
+    target.classList.add("page-active");
+  }
+}
+
 
 function renderStampSection() {
   const statusEl = qs("stamp-status");
@@ -577,7 +601,10 @@ function onQrDecoded(decodedText) {
   if (select) {
     select.value = String(obj.id);
   }
-  alert('Objekt "' + obj.name + '" ausgewählt.');
+  const statusEl = qs("stamp-status");
+  if (statusEl) {
+    statusEl.textContent = 'Objekt "' + obj.name + '" wurde per QR-Code ausgewählt.';
+  }
   closeQrModal();
 }
 
@@ -653,9 +680,8 @@ function renderAll() {
 
 function onStampInClick() {
   const objSelect = qs("stamp-object");
-  const descInput = qs("stamp-description");
   const objectId = objSelect && objSelect.value ? objSelect.value : "";
-  const description = descInput ? descInput.value.trim() : "";
+  const description = "";
 
   handleClockIn(objectId, description)
     .then(function (res) {
@@ -671,7 +697,10 @@ function onStampInClick() {
     });
 }
 
-function onStampOutClick() {
+function proceedClockOut(description) {
+  if (typeof description === "string") {
+    updateCurrentStampDescription(description.trim());
+  }
   handleClockOut()
     .then(function (res) {
       if (!res.ok) {
@@ -685,6 +714,46 @@ function onStampOutClick() {
       console.error("Fehler beim Ausstempeln:", e);
       alert("Buchung konnte nicht beendet werden.");
     });
+}
+
+function onStampOutClick() {
+  const backdrop = qs("note-modal-backdrop");
+  const textarea = qs("note-modal-text");
+  const saveBtn = qs("note-modal-save");
+  const skipBtn = qs("note-modal-skip");
+  const closeBtn = qs("note-modal-close");
+
+  if (!backdrop || !textarea || !saveBtn || !skipBtn) {
+    proceedClockOut("");
+    return;
+  }
+
+  textarea.value = "";
+
+  function closeAndProceed(desc) {
+    backdrop.style.display = "none";
+    proceedClockOut(desc || "");
+  }
+
+  backdrop.style.display = "flex";
+
+  saveBtn.onclick = function () {
+    closeAndProceed(textarea.value);
+  };
+  skipBtn.onclick = function () {
+    closeAndProceed("");
+  };
+  if (closeBtn) {
+    closeBtn.onclick = function () {
+      closeAndProceed("");
+    };
+  }
+
+  backdrop.onclick = function (e) {
+    if (e.target === backdrop) {
+      closeAndProceed("");
+    }
+  };
 }
 
 function setupEventHandlers() {
@@ -906,10 +975,7 @@ function setupEventHandlers() {
     menuItems.forEach(function (item) {
       item.addEventListener("click", function () {
         var targetId = item.getAttribute("data-section-target");
-        var target = qs(targetId);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        setActiveSection(targetId);
         menuDropdown.style.display = "none";
       });
     });
